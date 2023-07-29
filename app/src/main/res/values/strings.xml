@@ -1,0 +1,48 @@
+<resources>
+    <string name="app_name">MedicRoute</string>
+    <string name="google_maps_key">AIzaSyBy5NrbFjewXYzHMAIijLc1kaWyvmTOE_U</string>
+    <string name="login">Iniciar Sesión</string>
+    <string name="not_account">No tienes cuenta?</string>
+    <string name="sign_up"><u>Regístrate</u></string>
+    <string name="nombres">Nombres*</string>
+    <string name="apellidos">Apellidos*</string>
+    <string name="cedula">Cédula*</string>
+    <string name="correo">Correo*</string>
+    <string name="telefono">Teléfono*</string>
+    <string name="password">Contraseña*</string>
+    <string name="confirmPassword">Confirmar Contraseña*</string>
+    <string name="sexo">Sexo</string>
+    <string name="create_account">Crear cuenta</string>
+    <string name="next">Siguiente</string>
+    <string name="razon_social">Razón Social</string>
+    <string name="ruc">RUC</string>
+    <string name="renipress">Código RENIPRESS</string>
+    <string name="ubication">Ubicacion</string>
+    <string name="registro_sanitario">Registro Sanitario</string>
+    <string name="upload_pdf">Subir PDF</string>
+    <string name="download_pdf">Descargar PDF</string>
+    <string name="paciente">Paciente</string>
+    <string name="medico">Médico</string>
+    <string name="namePdf">nombrePdf.pdf</string>
+
+    <!--Dropdown items-->
+    <string-array name="sexo">
+        <item>Masculino</item>
+        <item>Femenino</item>
+        <item>Otros</item>
+    </string-array>
+
+    <!--Mensajes-->
+    <string name="not_insert_email">No ha ingresado su correo</string>
+    <string name="not_insert_password">No ha ingresado su contraseña</string>
+    <string name="not_insert_names">No ha ingresado sus nombres</string>
+    <string name="not_insert_lastnames">No ha ingresado sus apellidos</string>
+    <string name="not_insert_passport">No ha ingresado su cédula</string>
+    <string name="not_insert_phone">No ha ingresado su número de teléfono celular</string>
+    <string name="invalid_email">El correo no tiene el formato correcto: usuario@ejemplo.com</string>
+    <string name="exist_email">Esté correo ya se encuentra en uso</string>
+    <string name="invalid_password">Contraseña muy corta. Mínimo 6 caracteres - máximo 14 caracteres</string>
+    <string name="invalid_passport">Cédula invalida</string>
+    <string name="invalid_phone">Número de teléfono celular invalido</string>
+    <string name="invalid_confirm_password">Las contraseñas no coinciden</string>
+</resources>

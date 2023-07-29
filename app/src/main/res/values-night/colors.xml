@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background_medicrouteapp">#FF82D996</color>
+    <color name="background_simple_medicrouteapp">#0B6D36</color>
+    <color name="red">#BA1A1A</color>
+    <color name="transaparent">#00000000</color>
+</resources>

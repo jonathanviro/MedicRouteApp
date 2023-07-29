@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "306049654701",
+    "project_id": "medic-route",
+    "storage_bucket": "medic-route.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:306049654701:android:ed3c1e19186298ea758b24",
+        "android_client_info": {
+          "package_name": "com.javr.medicrouteapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "306049654701-tie4kqq7e0nqtsn17oo80mqg0lku0e57.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD0HM7Up9H8eL5Y_U2YaxyR5RTHuzFOBEg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "306049654701-tie4kqq7e0nqtsn17oo80mqg0lku0e57.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:306049654701:android:7a5ff5398296b1ec758b24",
+        "android_client_info": {
+          "package_name": "com.javr.medicrouteapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "306049654701-tie4kqq7e0nqtsn17oo80mqg0lku0e57.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD0HM7Up9H8eL5Y_U2YaxyR5RTHuzFOBEg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "306049654701-tie4kqq7e0nqtsn17oo80mqg0lku0e57.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
