@@ -16,7 +16,7 @@ import com.javr.medicrouteapp.data.network.model.Paciente
 import com.javr.medicrouteapp.data.network.model.Solicitud
 import com.javr.medicrouteapp.data.sharedpreferences.PacienteManager
 import com.javr.medicrouteapp.databinding.ActivitySearchBinding
-import com.javr.medicrouteapp.ui.fragments.ModalBottomSolicitudForPaciente
+import layout.fragments.ModalBottomSolicitudForPaciente
 import org.imperiumlabs.geofirestore.callbacks.GeoQueryEventListener
 
 class SearchActivity : AppCompatActivity() {

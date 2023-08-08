@@ -32,4 +32,8 @@ class  AuthProvider {
     fun checkEmailExists(email: String): Task<SignInMethodQueryResult> {
         return auth.fetchSignInMethodsForEmail(email)
     }
+
+    fun logout() {
+        auth.signOut()
+    }
 }

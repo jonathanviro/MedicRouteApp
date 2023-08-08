@@ -16,6 +16,8 @@ data class Solicitud (
     val nombreConsultorio: String? = null,
     val consulta: String? = null,
     val horaAgendada: String? = null,
+    val diagnostico: String? = null,
+    val receta: String? = null,
     val precio: Double? = null,
     val pacienteLat: Double? = null,
     val pacienteLng: Double? = null,

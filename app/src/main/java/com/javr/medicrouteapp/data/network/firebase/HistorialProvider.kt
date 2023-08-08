@@ -9,7 +9,7 @@ import com.google.firebase.ktx.Firebase
 import com.javr.medicrouteapp.data.network.model.Historial
 
 class HistorialProvider {
-    val  db = Firebase.firestore.collection("Historial")
+    val  db = Firebase.firestore.collection("HistorialAtenciones")
     val authProvider = AuthProvider()
 
     fun create(historial: Historial): Task<DocumentReference> {
@@ -18,12 +18,10 @@ class HistorialProvider {
         }
     }
 
-    fun getLastHistorialByMedico() : Query{ // CONSULTA COMPUESTA
-        return db.whereEqualTo("idMedicoAsignado", authProvider.getId()).orderBy("timestamp", Query.Direction.DESCENDING).limit(1)
-    }
-
-    fun getLastHistorialByPaciente() : Query{ // CONSULTA COMPUESTA
-        return db.whereEqualTo("idPaciente", authProvider.getId()).orderBy("timestamp", Query.Direction.DESCENDING).limit(1)
+    fun remove(): Task<Void> {
+        return db.document(authProvider.getId()).delete().addOnFailureListener {
+            Log.d("FIRESTORE", "EROR ${it.message}")
+        }
     }
 
     fun updateCalificationToClient(id: String, calification: Float): Task<Void>{
@@ -31,26 +29,32 @@ class HistorialProvider {
             Log.d("FIRESTORE", "ERROR ${it.message}")
         }
     }
+
     fun updateCalificationToMedico(id: String, calification: Float): Task<Void>{
-        return db.document(id).update("calificationToMedico", calification).addOnFailureListener {
+        return db.document(id).update("calificacionParaMedico", calification).addOnFailureListener {
             Log.d("FIRESTORE", "ERROR ${it.message}")
         }
     }
 
-
-    fun getReserva(): Query {       //OBTENER SOLICITUD DEL CLEINTE
-        return db.whereEqualTo("idMedicoAsignado", authProvider.getId())
+    fun getLastHistorialByPaciente() : Query{ // CONSULTA COMPUESTA - INDICE
+        return db.whereEqualTo("idPaciente", authProvider.getId())
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .limit(1)
     }
 
-
-
-    fun getReservaPaciente(): DocumentReference {
-        return db.document(authProvider.getId())
+    fun getLastHistorialByMedico() : Query{ // CONSULTA COMPUESTA - INDICE
+        return db.whereEqualTo("idMedico", authProvider.getId())
+                 .orderBy("timestamp", Query.Direction.DESCENDING)
+                 .limit(1)
     }
 
-    fun remove(): Task<Void> {
-        return db.document(authProvider.getId()).delete().addOnFailureListener {
-            Log.d("FIRESTORE", "EROR ${it.message}")
-        }
+    fun getAllHistorialByPaciente(idPaciente: String) : Query{ // CONSULTA COMPUESTA - INDICE
+        return db.whereEqualTo("idPaciente", idPaciente)
+                 .orderBy("timestamp", Query.Direction.DESCENDING)
+    }
+
+    fun getAllHistorialByMedico(idMedico: String) : Query{ // CONSULTA COMPUESTA - INDICE
+        return db.whereEqualTo("idMedico", idMedico)
+                  .orderBy("timestamp", Query.Direction.DESCENDING)
     }
 }

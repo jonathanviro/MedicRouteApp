@@ -40,7 +40,7 @@
                     android:background="@drawable/circle"
                     android:padding="5dp"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/usuario"
+                    android:src="@drawable/avatar"
                     app:shapeAppearanceOverlay="@style/circular" />
 
                 <com.google.android.material.imageview.ShapeableImageView
@@ -220,8 +220,8 @@
 
                     <ImageView
                         android:id="@+id/ivUploadPdf"
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
                         android:layout_margin="8dp"
                         android:layout_weight="1"
                         android:src="@drawable/ic_pdf_upload" />
@@ -233,7 +233,7 @@
                         android:layout_margin="8dp"
                         android:gravity="center"
                         tools:text="@string/namePdf"
-                        android:textSize="16dp"
+                        android:textSize="12dp"
                         android:textStyle="bold" />
                 </LinearLayout>
 
@@ -252,13 +252,13 @@
                         android:layout_margin="8dp"
                         android:gravity="center"
                         android:text="@string/download_pdf"
-                        android:textSize="16dp"
+                        android:textSize="12dp"
                         android:textStyle="bold" />
 
                     <ImageView
                         android:id="@+id/ivDownloadPdf"
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
                         android:layout_margin="8dp"
                         android:src="@drawable/ic_pdf_download" />
                 </LinearLayout>

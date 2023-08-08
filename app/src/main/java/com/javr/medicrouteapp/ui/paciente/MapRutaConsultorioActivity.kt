@@ -10,6 +10,8 @@ import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -32,15 +34,20 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.firebase.firestore.ListenerRegistration
 import com.javr.medicrouteapp.R
 import com.javr.medicrouteapp.data.network.firebase.AuthProvider
 import com.javr.medicrouteapp.data.network.firebase.GeoProvider
 import com.javr.medicrouteapp.data.network.firebase.HistorialProvider
 import com.javr.medicrouteapp.data.network.firebase.SolicitudProvider
+import com.javr.medicrouteapp.data.network.model.Historial
 import com.javr.medicrouteapp.data.network.model.Paciente
 import com.javr.medicrouteapp.data.network.model.Solicitud
 import com.javr.medicrouteapp.data.sharedpreferences.PacienteManager
 import com.javr.medicrouteapp.databinding.ActivityMapRutaConsultorioBinding
+import com.javr.medicrouteapp.ui.LoginActivity
+import com.javr.medicrouteapp.ui.medico.PerfilMedicoActivity
+import com.javr.medicrouteapp.utils.MyToolbar
 
 class MapRutaConsultorioActivity : AppCompatActivity(), OnMapReadyCallback, Listener,
     DirectionUtil.DirectionCallBack {
@@ -50,6 +57,8 @@ class MapRutaConsultorioActivity : AppCompatActivity(), OnMapReadyCallback, List
     private var originLatLng: LatLng? = null
     private var ubicacionConsultiorio: LatLng? = null
 
+    private var solicitudListener: ListenerRegistration? = null
+
     private var googleMap: GoogleMap? = null
     var easyWayLocation: EasyWayLocation? = null
     private var myLocationLatLng: LatLng? = null
@@ -57,7 +66,6 @@ class MapRutaConsultorioActivity : AppCompatActivity(), OnMapReadyCallback, List
     private var markerDestination: Marker? = null
     private var authProvider = AuthProvider()
     private var geoProvider = GeoProvider()
-    private var historialProvider = HistorialProvider()
     private var solicitudProvider = SolicitudProvider()
     private var isLocationEnabled = false
 
@@ -71,15 +79,64 @@ class MapRutaConsultorioActivity : AppCompatActivity(), OnMapReadyCallback, List
         binding = ActivityMapRutaConsultorioBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        MyToolbar().showToolbar(this, "Ruta Consultorio", false)
+
         // Obtener datos de paciente
         shpPaciente = PacienteManager.obtenerPaciente(this)
 
-        initListener()
         initMap()
+        initListener()
+        checkEstadoSolicitud()
+
     }
 
     private fun initListener() {
         binding.btnCancelarConsulta.setOnClickListener { removeSolicitud() }
+    }
+
+    private fun checkEstadoSolicitud() {
+        solicitudListener = solicitudProvider.getEstadoSolicitud().addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                Log.d("FIRESTORE", "SearchActivity/ERROR ${e.message}")
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null && snapshot.exists()) {
+                val solicitud = snapshot.toObject(Solicitud::class.java)
+                Log.d("FIRESTORE", "SearchActivity/DATA ${solicitud?.toJson()}")
+
+                if (solicitud?.status == "iniciado") {
+                    Toast.makeText(this, "Solicitud Iniciada", Toast.LENGTH_LONG).show()
+                    binding.btnCancelarConsulta.visibility = View.GONE
+                } else if(solicitud?.status == "finalizado"){
+                    Toast.makeText(this, "Solicitud Aceptada", Toast.LENGTH_LONG).show()
+                    binding.btnVerDiagnostico.visibility = View.VISIBLE
+                    goToDiagnostico()
+                    solicitudListener?.remove()
+                } else if(solicitud?.status == "cancelado"){
+                    Toast.makeText(this, "Solicitud Cancelado", Toast.LENGTH_LONG).show()
+                    goToMapPaciente()
+                    solicitudListener?.remove()
+                }
+
+
+            }
+        }
+    }
+
+    private fun goToDiagnostico() {
+        val intent = Intent(this, DetailDiagnosticoActivity::class.java)
+        intent.putExtra(DetailDiagnosticoActivity.EXTRA_HISTORIAL, "PACIENTE")
+        intent.putExtra(DetailDiagnosticoActivity.EXTRA_HISTORIAL, Historial())     //Se envia Historial Nulo para que s epueda calificar. Solo se envia lleno cuando e sun item del Activity HistorialPaciente
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+    }
+
+
+    private fun goToMapPaciente(){
+        val intent = Intent(this, MapPacienteActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
     }
 
     private fun initMap() {
@@ -229,7 +286,7 @@ class MapRutaConsultorioActivity : AppCompatActivity(), OnMapReadyCallback, List
 
     private fun addConsultorioMarker() {
         markerDestination = googleMap?.addMarker(
-            MarkerOptions().position(ubicacionConsultiorio!!).title("Consultorio").icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_centro_medico))
+            MarkerOptions().position(ubicacionConsultiorio!!).title("Consultorio").icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_centro_medico_grey))
         )
     }
 
@@ -300,6 +357,40 @@ class MapRutaConsultorioActivity : AppCompatActivity(), OnMapReadyCallback, List
     ) {
         //DIBUJAR RUTA
         directionUtil.drawPath(WAY_POINT_TAG)
+    }
+
+    private fun goToMain() {
+        authProvider.logout()
+        val intent = Intent(this, LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+    }
+
+    private fun goToHistorial() {
+        val intent = Intent(this, HistorialPacienteActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_contextual, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.option_one) {
+            val intent = Intent(this, PerfilPacienteActivity::class.java)
+            startActivity(intent)
+        }
+
+        if (item.itemId == R.id.option_two) {
+            goToHistorial()
+        }
+
+        if (item.itemId == R.id.option_three) {
+            goToMain()
+        }
+
+        return super.onOptionsItemSelected(item)
     }
 
     override fun locationOn() {

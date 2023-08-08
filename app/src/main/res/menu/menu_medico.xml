@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+<!--    <item-->
+<!--        android:id="@+id/search_bar"-->
+<!--        android:icon="@drawable/ic_search_24"-->
+<!--        android:title="Search"-->
+<!--        app:showAsAction="ifRoom|collapseActionView" />-->
+
+    <item
+        android:id="@+id/option_one"
+        android:title="Ver Perfil" />
+    <item
+        android:id="@+id/option_two"
+        android:title="Ver Historial Atenciones" />
+    <item
+        android:id="@+id/option_three"
+        android:title="Cerrar Sesión" />
+</menu>

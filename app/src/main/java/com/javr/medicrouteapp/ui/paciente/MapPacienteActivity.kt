@@ -7,6 +7,8 @@ import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -33,7 +35,10 @@ import com.javr.medicrouteapp.data.network.model.Paciente
 import com.javr.medicrouteapp.data.network.model.Solicitud
 import com.javr.medicrouteapp.data.sharedpreferences.PacienteManager
 import com.javr.medicrouteapp.databinding.ActivityMapPacienteBinding
+import com.javr.medicrouteapp.ui.LoginActivity
+import com.javr.medicrouteapp.ui.medico.PerfilMedicoActivity
 import com.javr.medicrouteapp.utils.MoveAnimation
+import com.javr.medicrouteapp.utils.MyToolbar
 import org.imperiumlabs.geofirestore.callbacks.GeoQueryEventListener
 
 class MapPacienteActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
@@ -58,8 +63,9 @@ class MapPacienteActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
         binding = ActivityMapPacienteBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Setear datos del paciente
         shpPaciente = PacienteManager.obtenerPaciente(this)
+
+        MyToolbar().showToolbar(this, "Bienvenido ${shpPaciente?.nombres}", false)
 
         initMap()
         initListener()
@@ -135,8 +141,7 @@ class MapPacienteActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
     private fun getMedicosCercanos() {
         if (myLocationLatLng == null) return
 
-        geoProvider.getMedicosCercanos(myLocationLatLng!!, 100.0)
-            .addGeoQueryEventListener(object : GeoQueryEventListener {
+        geoProvider.getMedicosCercanos(myLocationLatLng!!, 100.0).addGeoQueryEventListener(object : GeoQueryEventListener {
                 //Se ejecuta cuando encuentre un medico
                 override fun onKeyEntered(documentID: String, location: GeoPoint) {
                     //Se recorre todos los medicos que esten disponibles
@@ -152,9 +157,9 @@ class MapPacienteActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
 
                     //Si no existe el medico lo creamos un nuevo marcador para el medico conectado
                     val medicoLatLng = LatLng(location.latitude, location.longitude)
+                    Log.d("FIRESTORE", "AQUI ${medicoLatLng}")
                     val marker = googleMap?.addMarker(
-                        MarkerOptions().position(medicoLatLng).title("Medico disponible")
-                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_centro_medico))
+                        MarkerOptions().position(medicoLatLng).title("Medico disponible").icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_centro_medico_grey))
                     )
 
                     //Se le asigna el id del medico al tag
@@ -257,8 +262,7 @@ class MapPacienteActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
     }
 
     override fun currentLocation(location: Location) {//Actualizacion de la posicion en tiempo real
-        myLocationLatLng =
-            LatLng(location.latitude, location.longitude)//Latitud y longitud de la posicion actual
+        myLocationLatLng = LatLng(location.latitude, location.longitude)//Latitud y longitud de la posicion actual
 
         if (!isLocationEnabled) {     //INGRESARA UNA SOLA VEZ
             isLocationEnabled = true
@@ -273,17 +277,39 @@ class MapPacienteActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
         }
     }
 
-//    private fun removeReserva() {
-//        reservaProvider.getsolicitudPaciente().get().addOnSuccessListener { document ->
-//            if(document.exists()){
-//                val reserva = document.toObject(Reserva::class.java)
-//                if(reserva?.status == "create" || reserva?.status == "cancel"){
-//                    reservaProvider.remove()
-//                }
-//            }
-//        }
-//    }
+    private fun goToMain() {
+        authProvider.logout()
+        val intent = Intent(this, LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+    }
 
+    private fun goToHistorial() {
+        val intent = Intent(this, HistorialPacienteActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_contextual, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.option_one) {
+            val intent = Intent(this, PerfilPacienteActivity::class.java)
+            startActivity(intent)
+        }
+
+        if (item.itemId == R.id.option_two) {
+            goToHistorial()
+        }
+
+        if (item.itemId == R.id.option_three) {
+            goToMain()
+        }
+
+        return super.onOptionsItemSelected(item)
+    }
 
     override fun locationOn() {
     }

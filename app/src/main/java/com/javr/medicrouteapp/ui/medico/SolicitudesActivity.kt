@@ -3,11 +3,14 @@ package com.javr.medicrouteapp.ui.medico
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.ListenerRegistration
+import com.javr.medicrouteapp.R
 import com.javr.medicrouteapp.data.network.firebase.AuthProvider
 import com.javr.medicrouteapp.data.network.firebase.GeoProvider
 import com.javr.medicrouteapp.data.network.firebase.SolicitudProvider
@@ -15,17 +18,20 @@ import com.javr.medicrouteapp.data.network.model.Medico
 import com.javr.medicrouteapp.data.network.model.Solicitud
 import com.javr.medicrouteapp.data.sharedpreferences.MedicoManager
 import com.javr.medicrouteapp.databinding.ActivitySolicitudesBinding
+import com.javr.medicrouteapp.ui.LoginActivity
 import com.javr.medicrouteapp.ui.adapter.SolicitudAdapter
-import com.javr.medicrouteapp.ui.fragments.ModalBottomSolicitudForMedico
 import com.javr.medicrouteapp.utils.MyToolbar
+import layout.fragments.ModalBottomSolicitudForMedico
 
 class SolicitudesActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySolicitudesBinding
     private var shpMedico: Medico? = null
-    lateinit var solicitudAdapter: SolicitudAdapter
+    private lateinit var solicitudAdapter: SolicitudAdapter
     private val lstSolicitudes = mutableListOf<Solicitud>()
-
     private var ubicacionConsultorio: LatLng? = null
+    var isValorizando: Boolean = false
+
+
     private var authProvider = AuthProvider()
     private var geoProvider = GeoProvider()
     private var solicitudProvider = SolicitudProvider()
@@ -41,7 +47,6 @@ class SolicitudesActivity : AppCompatActivity() {
 
         MyToolbar().showToolbar(this, "Solicitudes", false)
 
-        // Setear ubicacion de consultorio
         shpMedico = MedicoManager.obtenerMedico(this)
         ubicacionConsultorio = LatLng(shpMedico?.consultorioLat!!, shpMedico?.consultorioLng!!)
 
@@ -54,12 +59,13 @@ class SolicitudesActivity : AppCompatActivity() {
         binding.btnConectar.setOnClickListener { connect() }
         binding.btnDesconectar.setOnClickListener { disconnect() }
 
-        listarSolicitudesAceptadas()
+        listarSolicitudesSolicitudesByEstados()
         listenerSolicitudes()
     }
 
     private fun listarSolicitudesAceptadas() {
         solicitudesAceptadasListener = solicitudProvider.getSolicitudesByMedicoYStatus(authProvider.getId(), "aceptado").addSnapshotListener { snapshot, e ->
+            var solicitudes = emptyList<Solicitud>()
             if (e != null) {
                 Log.d("FIRESTORE", "ERROR ${e.message}")
                 return@addSnapshotListener
@@ -67,12 +73,35 @@ class SolicitudesActivity : AppCompatActivity() {
 
             if (snapshot != null)  {
                 if (snapshot.documents.size > 0) {
-                    val solicitudes = snapshot.toObjects(Solicitud::class.java)
-                    lstSolicitudes.clear()
-                    lstSolicitudes.addAll(solicitudes)
-                    solicitudAdapter.notifyDataSetChanged()
+                    solicitudes = snapshot.toObjects(Solicitud::class.java)
                 }
             }
+
+            lstSolicitudes.clear()
+            lstSolicitudes.addAll(solicitudes)
+            solicitudAdapter.notifyDataSetChanged()
+        }
+    }
+
+    private fun listarSolicitudesSolicitudesByEstados() {
+        val lstEstados = listOf("aceptado", "iniciado")
+
+        solicitudesAceptadasListener = solicitudProvider.getSolicitudesByMedicoYStatus(authProvider.getId(), lstEstados).addSnapshotListener { snapshot, e ->
+            var solicitudes = emptyList<Solicitud>()
+            if (e != null) {
+                Log.d("FIRESTORE", "ERROR ${e.message}")
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null)  {
+                if (snapshot.documents.size > 0) {
+                    solicitudes = snapshot.toObjects(Solicitud::class.java)
+                }
+            }
+
+            lstSolicitudes.clear()
+            lstSolicitudes.addAll(solicitudes)
+            solicitudAdapter.notifyDataSetChanged()
         }
     }
 
@@ -89,8 +118,11 @@ class SolicitudesActivity : AppCompatActivity() {
                     val lstSolicitudesActuales = snapshot.toObjects(Solicitud::class.java)
                     for (solicitud in lstSolicitudesActuales){
                         if(solicitud != null && solicitud.status == "creado"){
-                            Log.d("FIRESTORE", "SolicitudesActivity/DATA ${solicitud?.toJson()}")
-                            showModalSolicitud(solicitud)
+                            if(!isValorizando){
+                                isValorizando = true
+                                Log.d("FIRESTORE", "SolicitudesActivity/DATA ${solicitud?.toJson()}")
+                                showModalSolicitud(solicitud)
+                            }
                         }
                     }
                 }
@@ -128,6 +160,8 @@ class SolicitudesActivity : AppCompatActivity() {
     }
 
     private fun connect() {
+        shpMedico = MedicoManager.obtenerMedico(this)
+        ubicacionConsultorio = LatLng(shpMedico?.consultorioLat!!, shpMedico?.consultorioLng!!)
         saveLocation()
         showButtonConnection(false)
     }
@@ -148,7 +182,7 @@ class SolicitudesActivity : AppCompatActivity() {
 
     fun onSelectedItem(solicitud: Solicitud) {
         val intent = Intent(this, DetailPacienteActivity::class.java)
-        intent.putExtra(DetailPacienteActivity.EXTRA_PACIENTE, solicitud)
+        intent.putExtra(DetailPacienteActivity.EXTRA_SOLICITUD, solicitud)
         startActivity(intent)
 //        finish()
     }
@@ -158,6 +192,39 @@ class SolicitudesActivity : AppCompatActivity() {
             geoProvider.saveLocation(authProvider.getId(), ubicacionConsultorio!!)
         }
     }
+
+    private fun goToMain() {
+        authProvider.logout()
+        val intent = Intent(this, LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+    }
+    private fun goToHistorialAtenciones() {
+        val intent = Intent(this, HistorialAtencionesActivity::class.java)
+        startActivity(intent)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_contextual, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.option_one) {
+            val intent = Intent(this, PerfilMedicoActivity::class.java)
+            startActivity(intent)
+        }
+
+        if (item.itemId == R.id.option_two) {
+            goToHistorialAtenciones()
+        }
+
+        if (item.itemId == R.id.option_three) {
+            goToMain()
+        }
+
+        return super.onOptionsItemSelected(item)
+    }
+
 
     override fun onDestroy() {
         super.onDestroy()

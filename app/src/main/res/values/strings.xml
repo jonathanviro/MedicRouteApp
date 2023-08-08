@@ -20,7 +20,7 @@
     <string name="ubication">Ubicacion</string>
     <string name="registro_sanitario">Registro Sanitario</string>
     <string name="upload_pdf">Subir PDF</string>
-    <string name="download_pdf">Descargar PDF</string>
+    <string name="download_pdf">Descargar</string>
     <string name="paciente">Paciente</string>
     <string name="medico">Médico</string>
     <string name="namePdf">nombrePdf.pdf</string>

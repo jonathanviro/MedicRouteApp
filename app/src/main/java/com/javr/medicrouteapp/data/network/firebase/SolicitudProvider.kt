@@ -69,9 +69,17 @@ class SolicitudProvider {
         }
     }
 
-    // Método para obtener las solicitudes por idMedico y status
+    // Método para obtener las solicitudes por idMedico y status - // CONSULTA COMPUESTA - INDICE
     fun getSolicitudesByMedicoYStatus(idMedico: String, status: String): Query {
         return db.whereEqualTo("idMedico", idMedico)
                  .whereEqualTo("status", status)
     }
+
+    // Obtener solicitudes aceptadas e iniciadas - // CONSULTA COMPUESTA - INDICE
+    fun getSolicitudesByMedicoYStatus(idMedico: String, lstEstados: List<String>): Query {
+        return db.whereEqualTo("idMedico", idMedico)
+                 .whereIn("status", lstEstados)
+                 .orderBy("status")
+    }
+
 }

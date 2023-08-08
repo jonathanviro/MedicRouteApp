@@ -24,6 +24,8 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.javr.medicrouteapp.R
+import com.javr.medicrouteapp.core.Global
+import com.javr.medicrouteapp.core.Validator
 import com.javr.medicrouteapp.databinding.ActivitySignupConsultorioBinding
 import com.javr.medicrouteapp.toolbar.Toolbar
 
@@ -32,9 +34,9 @@ class SignupConsultorioActivity : AppCompatActivity(), OnMapReadyCallback,
 
     private lateinit var binding: ActivitySignupConsultorioBinding
     private var googleMap: GoogleMap? = null
+    private var easyWayLocation: EasyWayLocation? = null
     private var consultorioLat: Double? = null
     private var consultorioLng: Double? = null
-    private var easyWayLocation: EasyWayLocation? = null
     private var ubicacionActual: LatLng? = null
     private var marker: Marker? = null
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,27 +44,30 @@ class SignupConsultorioActivity : AppCompatActivity(), OnMapReadyCallback,
         binding = ActivitySignupConsultorioBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        initMap()
         initComponents()
         initListener()
     }
 
     private fun initComponents() {
         Toolbar().showToolbar(this, "Registro de Consultorio Médico", true)
-
-        initMap()
     }
 
     private fun initListener() {
+        iniWatchers()
+
         binding.btnNext.setOnClickListener {
-            val intent = Intent(this, SignupUsuarioActivity::class.java)
-            intent.putExtra(SignupUsuarioActivity.EXTRA_TIPO_USUARIO, "MEDICO")
-            intent.putExtra(SignupUsuarioActivity.EXTRA_RAZON_SOCIAL, binding.etRazonSocial.text.toString())
-            intent.putExtra(SignupUsuarioActivity.EXTRA_RUC, binding.etRuc.text.toString())
-            intent.putExtra(SignupUsuarioActivity.EXTRA_DIRECCION, binding.etUbicacion.text.toString())
-            intent.putExtra(SignupUsuarioActivity.EXTRA_REGISTRO_SANITARIO, binding.etRegistroSanitario.text.toString())
-            intent.putExtra(SignupUsuarioActivity.EXTRA_CONSULTORIO_LAT, consultorioLat)
-            intent.putExtra(SignupUsuarioActivity.EXTRA_CONSULTORIO_LNG, consultorioLng)
-            startActivity(intent)
+            if(Validator.isValidRUC(binding.etRuc.text.toString())){
+                val intent = Intent(this, SignupUsuarioActivity::class.java)
+                intent.putExtra(SignupUsuarioActivity.EXTRA_TIPO_USUARIO, "MEDICO")
+                intent.putExtra(SignupUsuarioActivity.EXTRA_RAZON_SOCIAL, binding.etRazonSocial.text.toString())
+                intent.putExtra(SignupUsuarioActivity.EXTRA_RUC, binding.etRuc.text.toString())
+                intent.putExtra(SignupUsuarioActivity.EXTRA_DIRECCION, binding.etUbicacion.text.toString())
+                intent.putExtra(SignupUsuarioActivity.EXTRA_REGISTRO_SANITARIO, binding.etRegistroSanitario.text.toString())
+                intent.putExtra(SignupUsuarioActivity.EXTRA_CONSULTORIO_LAT, consultorioLat)
+                intent.putExtra(SignupUsuarioActivity.EXTRA_CONSULTORIO_LNG, consultorioLng)
+                startActivity(intent)
+            }
         }
     }
 
@@ -179,6 +184,9 @@ class SignupConsultorioActivity : AppCompatActivity(), OnMapReadyCallback,
             }
         }
 
+    private fun iniWatchers() {
+        Global.setErrorInTextInputLayout(binding.etRuc, binding.tilRuc)
+    }
     override fun onDestroy() {
         super.onDestroy()
         easyWayLocation?.endUpdates()

@@ -48,6 +48,7 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:31.5.0')
     implementation 'com.google.firebase:firebase-auth-ktx:21.1.0'
     implementation 'com.google.firebase:firebase-firestore-ktx'
+    implementation("com.google.firebase:firebase-storage-ktx")
 
     //Json Parse
     implementation 'com.beust:klaxon:5.5'
@@ -66,6 +67,12 @@ dependencies {
 
     //Lootie Files
     implementation "com.airbnb.android:lottie:5.2.0"
+
+    //Glide Imagenes
+    implementation 'com.github.bumptech.glide:glide:4.15.1'
+
+    //Progress dialog
+    implementation 'com.github.d-max:spots-dialog:1.1@aar'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

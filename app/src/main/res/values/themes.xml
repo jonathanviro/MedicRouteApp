@@ -30,4 +30,11 @@
     </style>
 
     <style name="Theme.Medicroute" parent="Base.Theme.Medicroute" />
+
+    <style name="CustomDialogoCarga" parent="android:Theme.DeviceDefault.Light.Dialog">
+        <item name="DialogTitleAppearance">@android:style/TextAppearance.Medium</item>
+        <item name="DialogTitleText">Updating…</item>
+        <item name="DialogSpotColor">@color/md_theme_dark_inversePrimary</item>
+        <item name="DialogSpotCount">4</item>
+    </style>
 </resources>

@@ -1,4 +1,4 @@
-package com.javr.medicrouteapp.ui.fragments
+package layout.fragments
 
 import android.content.DialogInterface
 import android.os.Bundle
@@ -14,12 +14,11 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import com.javr.medicrouteapp.R
-import com.javr.medicrouteapp.data.network.firebase.AuthProvider
-import com.javr.medicrouteapp.data.network.firebase.GeoProvider
 import com.javr.medicrouteapp.data.network.firebase.SolicitudProvider
 import com.javr.medicrouteapp.data.network.model.Medico
 import com.javr.medicrouteapp.data.network.model.Solicitud
 import com.javr.medicrouteapp.data.sharedpreferences.MedicoManager
+import com.javr.medicrouteapp.ui.medico.SolicitudesActivity
 
 class ModalBottomSolicitudForMedico : BottomSheetDialogFragment() {
 
@@ -36,8 +35,6 @@ class ModalBottomSolicitudForMedico : BottomSheetDialogFragment() {
     private lateinit var btnCancelar: Button
 
     private val solicitudProvider = SolicitudProvider()
-    private val geoProvider = GeoProvider()
-    private val authProvider = AuthProvider()
     private lateinit var solicitud: Solicitud
 
     override fun onCreateView(
@@ -84,7 +81,7 @@ class ModalBottomSolicitudForMedico : BottomSheetDialogFragment() {
             shpMedico?.consultorioLat!!,
             shpMedico?.consultorioLng!!
         ).addOnCompleteListener {
-//            (activity as? MapMedicoActivity)?.timer?.cancel() // Detengo el timer de la modal que se lanza en MapMedicoActivity
+            (activity as? SolicitudesActivity)?.isValorizando = false // Permito recibir cosnultas de la modal que se lanza en SolciitudesActivity
             if (it.isSuccessful) {
 //                geoProvider.removeLocation(authProvider.getId())  DESCOMENTAR PARA UTILIZARLO DESPUES
                 dismiss()

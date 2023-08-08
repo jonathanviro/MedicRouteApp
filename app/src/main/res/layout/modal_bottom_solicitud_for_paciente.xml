@@ -9,7 +9,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="420dp"
+        android:layout_height="390dp"
         android:layout_gravity="bottom"
         android:orientation="vertical">
 
@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="12dp"
-            android:text="SOLICITUD DE CONSULTA"
+            android:text="Solicitud de Consulta"
             android:textAlignment="center"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -33,7 +33,7 @@
                 android:layout_height="30dp"
                 android:layout_gravity="center"
                 android:layout_marginHorizontal="10dp"
-                android:src="@drawable/ic_person" />
+                android:src="@drawable/ic_user" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -55,7 +55,7 @@
                     android:layout_height="wrap_content"
                     android:maxLines="2"
                     android:text="Veris Emergencias"
-                    android:textSize="15sp" />
+                    android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
 
@@ -70,7 +70,7 @@
                 android:layout_height="30dp"
                 android:layout_gravity="center"
                 android:layout_marginHorizontal="10dp"
-                android:src="@drawable/ic_medical_services" />
+                android:src="@drawable/ic_archive" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -91,7 +91,7 @@
                     android:layout_height="wrap_content"
                     android:maxLines="2"
                     android:text="Tos y resequedad de garganta"
-                    android:textSize="15sp" />
+                    android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
 
@@ -106,7 +106,7 @@
                 android:layout_height="30dp"
                 android:layout_gravity="center"
                 android:layout_marginHorizontal="10dp"
-                android:src="@drawable/ic_money" />
+                android:src="@drawable/ic_coin" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -127,7 +127,7 @@
                     android:layout_height="wrap_content"
                     android:maxLines="2"
                     android:text="$5.00"
-                    android:textSize="15sp" />
+                    android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
 
@@ -142,7 +142,7 @@
                 android:layout_height="30dp"
                 android:layout_gravity="center"
                 android:layout_marginHorizontal="10dp"
-                android:src="@drawable/ic_timer" />
+                android:src="@drawable/ic_clock" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -163,7 +163,7 @@
                     android:layout_height="wrap_content"
                     android:maxLines="2"
                     android:text="16:40 PM"
-                    android:textSize="15sp" />
+                    android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
 
