@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.javr.medicrouteapp.R
 import com.javr.medicrouteapp.data.network.firebase.AuthProvider
@@ -59,7 +58,7 @@ class HistorialPacienteActivity : AppCompatActivity() {
                     lstHistoriales.addAll(historialList)
                     historialAdapter.notifyDataSetChanged()
                 }else{
-                    Toast.makeText(this, "No se encontro el historial", Toast.LENGTH_LONG).show()
+                    Log.d("FIRESTORE", "HistorialPacienteActivity/ No se encontro el historial")
                 }
             }
         }
@@ -79,6 +78,7 @@ class HistorialPacienteActivity : AppCompatActivity() {
         intent.putExtra(DetailDiagnosticoActivity.EXTRA_TIPO_USUARIO, "PACIENTE")
         intent.putExtra(DetailDiagnosticoActivity.EXTRA_HISTORIAL, historial)
         startActivity(intent)
+        finish()
     }
 
     private fun goToMain() {
@@ -86,11 +86,13 @@ class HistorialPacienteActivity : AppCompatActivity() {
         val intent = Intent(this, LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
+        finish()
     }
 
     private fun goToHistorial() {
         val intent = Intent(this, HistorialPacienteActivity::class.java)
         startActivity(intent)
+        finish()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -100,8 +102,9 @@ class HistorialPacienteActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.option_one) {
-            val intent = Intent(this, PerfilMedicoActivity::class.java)
+            val intent = Intent(this, PerfilPacienteActivity::class.java)
             startActivity(intent)
+            finish()
         }
 
         if (item.itemId == R.id.option_two) {
@@ -113,5 +116,11 @@ class HistorialPacienteActivity : AppCompatActivity() {
         }
 
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onBackPressed() {
+        onBackPressedDispatcher.onBackPressed()
+        startActivity(Intent(this, MapPacienteActivity::class.java))
+        finish()
     }
 }

@@ -18,6 +18,7 @@ import com.javr.medicrouteapp.data.sharedpreferences.PacienteManager
 import com.javr.medicrouteapp.databinding.ActivitySearchBinding
 import layout.fragments.ModalBottomSolicitudForPaciente
 import org.imperiumlabs.geofirestore.callbacks.GeoQueryEventListener
+import java.util.Date
 
 class SearchActivity : AppCompatActivity() {
     companion object {
@@ -131,14 +132,17 @@ class SearchActivity : AppCompatActivity() {
             pacienteLat = extraPacienteLat,
             pacienteLng = extraPacienteLng,
             consultorioLat = null,
-            consultorioLng = null
+            consultorioLng = null,
+            timestampActualizacion = Date().time
         )
 
         solicitudProvider.create(objSolicitud).addOnCompleteListener {
             if(it.isSuccessful){
-                Toast.makeText(this@SearchActivity, "Datos de la solicitud creados", Toast.LENGTH_LONG).show()
+                Log.d("FIRESTORE", "SearchActivity/ Datos de la solicitud creados")
+//                Toast.makeText(this@SearchActivity, "Datos de la solicitud creados", Toast.LENGTH_LONG).show()
             }else{
-                Toast.makeText(this@SearchActivity, "SearchActivity/ERROR al crear datos de la solicitud", Toast.LENGTH_LONG).show()
+                Log.d("FIRESTORE", "SearchActivity/ERROR al crear datos de la solicitud")
+                Toast.makeText(this, "Error al crear datos de la solicitud", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -155,14 +159,17 @@ class SearchActivity : AppCompatActivity() {
                 Log.d("FIRESTORE", "SearchActivity/DATA ${solicitud?.toJson()}")
 
                 if (solicitud?.status == "valorado") {
-                    Toast.makeText(this@SearchActivity, "Solicitud Valorada", Toast.LENGTH_LONG).show()
+                    Log.d("FIRESTORE", "SearchActivity/ Solicitud Valorada")
+//                    Toast.makeText(this@SearchActivity, "Solicitud Valorada", Toast.LENGTH_LONG).show()
                     showModalSolicitud(solicitud)
                 } else if(solicitud?.status == "aceptado"){
-                    Toast.makeText(this@SearchActivity, "Solicitud Aceptada", Toast.LENGTH_LONG).show()
+                    Log.d("FIRESTORE", "SearchActivity/ Solicitud Aceptada")
+//                    Toast.makeText(this@SearchActivity, "Solicitud Aceptada", Toast.LENGTH_LONG).show()
                     goToMapRutaConsultorio()
                     solicitudListener?.remove()
                 } else if(solicitud?.status == "cancelado"){
-                    Toast.makeText(this@SearchActivity, "Solicitud Cancelado", Toast.LENGTH_LONG).show()
+                    Log.d("FIRESTORE", "SearchActivity/ Solicitud Cancelado")
+//                    Toast.makeText(this@SearchActivity, "Solicitud Cancelado", Toast.LENGTH_LONG).show()
                     goToMapPaciente()
                     solicitudListener?.remove()
                 }
@@ -182,13 +189,17 @@ class SearchActivity : AppCompatActivity() {
 
     private fun goToMapRutaConsultorio(){
         val intent = Intent(this, MapRutaConsultorioActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
+        finish()
+
     }
 
     private fun goToMapPaciente(){
         val intent = Intent(this, MapPacienteActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
+        finish()
     }
 
     override fun onDestroy() {

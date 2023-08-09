@@ -4,14 +4,12 @@ import android.net.Uri
 import android.util.Log
 import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageTask
 import com.google.firebase.storage.UploadTask
-import com.javr.medicrouteapp.data.network.model.Medico
 import com.javr.medicrouteapp.data.network.model.Paciente
 import java.io.File
 
@@ -53,5 +51,9 @@ class PacienteProvider {
     fun getImagenUrl(id: String): Task<Uri> {
         val ref = storageImage.child("$id.jpg")
         return ref.downloadUrl
+    }
+
+    fun getAllPacientes(): Query {
+        return db.orderBy("apellidos")
     }
 }

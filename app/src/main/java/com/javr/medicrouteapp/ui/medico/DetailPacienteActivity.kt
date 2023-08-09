@@ -7,7 +7,6 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.javr.medicrouteapp.R
 import com.javr.medicrouteapp.data.network.firebase.AuthProvider
@@ -20,6 +19,7 @@ import com.javr.medicrouteapp.toolbar.Toolbar
 import com.javr.medicrouteapp.ui.LoginActivity
 import com.javr.medicrouteapp.ui.adapter.HistorialAdapter
 import com.javr.medicrouteapp.ui.paciente.DetailDiagnosticoActivity
+import java.util.Date
 
 class DetailPacienteActivity : AppCompatActivity() {
     companion object {
@@ -66,7 +66,7 @@ class DetailPacienteActivity : AppCompatActivity() {
         binding.btnDiagnosticar.setOnClickListener { goToDetalleAtencion() }
     }
     private fun iniciarConsulta() {
-        solicitudProvider.updateStatus(extraObjSolicitud.idPaciente!!, "iniciado").addOnCompleteListener {
+        solicitudProvider.updateStatus(extraObjSolicitud.idPaciente!!, "iniciado", Date().time).addOnCompleteListener {
             if(it.isSuccessful){
                 showButtonDiagnosticar()
             }
@@ -94,7 +94,7 @@ class DetailPacienteActivity : AppCompatActivity() {
                     lstHistoriales.addAll(historialList)
                     historialAdapter.notifyDataSetChanged()
                 }else{
-                    Toast.makeText(this, "No se encontro el historial", Toast.LENGTH_LONG).show()
+                    Log.d("FIRESTORE", "DetailPacienteActivity/ No se encontro el historial")
                 }
             }
         }

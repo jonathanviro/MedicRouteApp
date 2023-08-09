@@ -21,7 +21,6 @@ import com.javr.medicrouteapp.data.sharedpreferences.PacienteManager
 import com.javr.medicrouteapp.databinding.ActivityPerfilPacienteBinding
 import com.javr.medicrouteapp.toolbar.Toolbar
 import com.javr.medicrouteapp.ui.LoginActivity
-import com.javr.medicrouteapp.ui.medico.PerfilMedicoActivity
 
 class PerfilPacienteActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPerfilPacienteBinding
@@ -35,7 +34,7 @@ class PerfilPacienteActivity : AppCompatActivity() {
         binding = ActivityPerfilPacienteBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        Toolbar().showToolbar(this, "Mi Perfil", true)
+        Toolbar().showToolbar(this, "Mi Perfil", false)
 
         shpPaciente = PacienteManager.obtenerPaciente(this)
 
@@ -218,4 +217,10 @@ class PerfilPacienteActivity : AppCompatActivity() {
                 Toast.makeText(this, "NO HA SELECCIONADO FOTO", Toast.LENGTH_SHORT).show()
             }
         }
+
+    override fun onBackPressed() {
+        onBackPressedDispatcher.onBackPressed()
+        startActivity(Intent(this, MapPacienteActivity::class.java))
+        finish()
+    }
 }

@@ -1,6 +1,7 @@
 package com.javr.medicrouteapp.ui.administrador
 
 import android.Manifest
+import android.app.AlertDialog
 import android.app.DownloadManager
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -23,7 +24,6 @@ import androidx.core.app.ActivityCompat
 import com.bumptech.glide.Glide
 import com.example.easywaylocation.EasyWayLocation
 import com.example.easywaylocation.Listener
-import com.google.android.datatransport.runtime.scheduling.jobscheduling.SchedulerConfig.Flag
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -36,18 +36,15 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.javr.medicrouteapp.R
+import com.javr.medicrouteapp.core.Global
 import com.javr.medicrouteapp.data.network.firebase.AuthProvider
 import com.javr.medicrouteapp.data.network.firebase.HistorialProvider
 import com.javr.medicrouteapp.data.network.firebase.MedicoProvider
 import com.javr.medicrouteapp.data.network.model.Historial
 import com.javr.medicrouteapp.data.network.model.Medico
 import com.javr.medicrouteapp.databinding.ActivityDetailMedicoBinding
-
 import com.javr.medicrouteapp.toolbar.Toolbar
 import com.javr.medicrouteapp.ui.LoginActivity
-import com.javr.medicrouteapp.ui.medico.PerfilMedicoActivity
-import com.javr.medicrouteapp.ui.medico.SolicitudesActivity
-import com.javr.medicrouteapp.ui.menus.OpcionesAdministradorActivity
 
 class DetailMedicoActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
     companion object {
@@ -56,6 +53,7 @@ class DetailMedicoActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
 
     private lateinit var binding: ActivityDetailMedicoBinding
     private lateinit var extraObjMedico: Medico
+    private lateinit var dialogoCarga: AlertDialog
     private var ubicacionConsultorio: LatLng? = null
     private var googleMap: GoogleMap? = null
     private var marker: Marker? = null
@@ -119,7 +117,7 @@ class DetailMedicoActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
                         Log.d("FIRESTORE", "ActivityDetailMedicoBinding/CALIFICACION $calificacionMedico")
                     }
                 }else{
-                    Toast.makeText(this, "No se encontro el historial", Toast.LENGTH_LONG).show()
+                    Log.d("FIRESTORE", "ActivityDetailMedicoBinding/No se encontro el historial de calificación")
                 }
             }
 
@@ -135,19 +133,31 @@ class DetailMedicoActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
     }
 
     private fun habilitarMedico() {
+        dialogoCarga = Global.dialogoCarga(this, "Habilitando médico")
+        dialogoCarga.show()
         medicoProvider.updateStatus(extraObjMedico.id!!, "activo").addOnCompleteListener {
+            dialogoCarga.dismiss()
             goToMedicosPendientes()
         }
     }
 
     private fun deshabilitarMedico() {
+        dialogoCarga = Global.dialogoCarga(this, "Deshabilitando médico")
+        dialogoCarga.show()
         medicoProvider.updateStatus(extraObjMedico.id!!, "pendiente").addOnCompleteListener {
-            goToMedicosPendientes()
+            dialogoCarga.dismiss()
+            goToMedicosActivos()
         }
     }
 
     private fun goToMedicosPendientes() {
         val intent = Intent(this, MedicosPendientesActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
+    }
+
+    private fun goToMedicosActivos() {
+        val intent = Intent(this, MedicosActivosActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(intent)
     }
@@ -178,9 +188,7 @@ class DetailMedicoActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
 
     private fun addMarker(position: LatLng) {
         googleMap?.clear()
-        marker = googleMap?.addMarker(
-            MarkerOptions().position(position!!).title("Mi Consultorio").icon(
-                BitmapDescriptorFactory.fromResource(R.drawable.ic_centro_medico_grey)))
+        marker = googleMap?.addMarker(MarkerOptions().position(position!!).title("${extraObjMedico.razonSocial}").icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_centro_medico_grey)))
         googleMap?.moveCamera(CameraUpdateFactory.newCameraPosition( CameraPosition.builder().target(position).zoom(17f).build()))
     }
 
@@ -243,14 +251,17 @@ class DetailMedicoActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
     }
 
     private fun downloadPdf() {
+        dialogoCarga = Global.dialogoCarga(this, "Espere un momento")
+        dialogoCarga.show()
+
         var pdfUrl = extraObjMedico?.pdfUrl
         pdfUrl?.let {
             val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
 
             val request = DownloadManager.Request(Uri.parse(pdfUrl))
                 .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                .setTitle("Descargando PDF")
-                .setDescription("Descargando archivo PDF...")
+                .setTitle("RegistroSanitario_${extraObjMedico.apellidos}${extraObjMedico.nombres}.pdf")
+                .setDescription("Descargando Registro Sanitario...")
                 .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "${authProvider.getId()}.pdf")
 
             val downloadId = downloadManager.enqueue(request)
@@ -258,7 +269,8 @@ class DetailMedicoActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
             // Opcional: Puedes agregar un BroadcastReceiver para detectar cuando se completa la descarga
             val onComplete = object : BroadcastReceiver() {
                 override fun onReceive(context: Context?, intent: Intent?) {
-                    Toast.makeText(context, "Se ha descargado el PDF", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "Registro Sanitario Descargado", Toast.LENGTH_LONG).show()
+                    dialogoCarga.dismiss()
                 }
             }
 

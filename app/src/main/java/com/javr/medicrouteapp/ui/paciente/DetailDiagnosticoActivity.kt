@@ -16,9 +16,9 @@ import com.javr.medicrouteapp.data.network.firebase.SolicitudProvider
 import com.javr.medicrouteapp.data.network.model.Historial
 import com.javr.medicrouteapp.databinding.ActivityDetailDiagnosticoBinding
 import com.javr.medicrouteapp.ui.LoginActivity
+import com.javr.medicrouteapp.ui.medico.HistorialAtencionesActivity
 import com.javr.medicrouteapp.ui.medico.PerfilMedicoActivity
 import com.javr.medicrouteapp.utils.MyToolbar
-import java.util.Date
 
 class DetailDiagnosticoActivity : AppCompatActivity() {
     companion object {
@@ -107,7 +107,8 @@ class DetailDiagnosticoActivity : AppCompatActivity() {
 
                     initDetalle()
                 }else{
-                    Toast.makeText(this, "No se encontro el historial", Toast.LENGTH_LONG).show()
+                    Log.d("FIRESTORE", "DetailDiagnosticoActivity/ No se encontro el historial")
+//                    Toast.makeText(this, "No se encontro el historial", Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -129,32 +130,58 @@ class DetailDiagnosticoActivity : AppCompatActivity() {
         val intent = Intent(this, LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
+        finish()
     }
 
     private fun goToMapPaciente(){
         val intent = Intent(this, MapPacienteActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
+        finish()
     }
 
-    private fun goToHistorial() {
+    private fun goToHistorialPaciente() {
         val intent = Intent(this, HistorialPacienteActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
+        finish()
+    }
+
+    private fun goToHistorialMedico() {
+        val intent = Intent(this, HistorialAtencionesActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_contextual, menu)
+        if(extraObjHistorial.idPaciente != null){
+            menuInflater.inflate(R.menu.menu_medico, menu)
+
+        }else{
+            menuInflater.inflate(R.menu.menu_paciente, menu)
+        }
+
         return super.onCreateOptionsMenu(menu)
     }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.option_one) {
-            val intent = Intent(this, PerfilMedicoActivity::class.java)
-            startActivity(intent)
-        }
+        if(extraObjHistorial.idPaciente != null){
+            if (item.itemId == R.id.option_one) {
+                val intent = Intent(this, PerfilMedicoActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
 
-        if (item.itemId == R.id.option_two) {
-            goToHistorial()
+            if (item.itemId == R.id.option_two) {
+                goToHistorialMedico()
+            }
+        }else{
+            if (item.itemId == R.id.option_one) {
+                val intent = Intent(this, PerfilPacienteActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
+
+            if (item.itemId == R.id.option_two) {
+                goToHistorialPaciente()
+            }
         }
 
         if (item.itemId == R.id.option_three) {
@@ -162,5 +189,17 @@ class DetailDiagnosticoActivity : AppCompatActivity() {
         }
 
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onBackPressed() {
+        onBackPressedDispatcher.onBackPressed()
+        if(extraObjHistorial.idPaciente != null){
+            startActivity(Intent(this, HistorialAtencionesActivity::class.java))
+
+        }else{
+            startActivity(Intent(this, HistorialPacienteActivity::class.java))
+        }
+
+        finish()
     }
 }

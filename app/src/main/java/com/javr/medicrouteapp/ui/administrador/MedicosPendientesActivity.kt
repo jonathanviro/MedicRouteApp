@@ -15,7 +15,6 @@ import com.javr.medicrouteapp.data.network.model.Medico
 import com.javr.medicrouteapp.databinding.ActivityMedicosPendientesBinding
 import com.javr.medicrouteapp.ui.LoginActivity
 import com.javr.medicrouteapp.ui.adapter.MedicoAdapter
-import com.javr.medicrouteapp.ui.medico.PerfilMedicoActivity
 import com.javr.medicrouteapp.ui.menus.OpcionesAdministradorActivity
 import com.javr.medicrouteapp.utils.MyToolbar
 
@@ -72,7 +71,7 @@ class MedicosPendientesActivity : AppCompatActivity() {
         val intent = Intent(this, DetailMedicoActivity::class.java)
         intent.putExtra(DetailMedicoActivity.EXTRA_MEDICO, medico)
         startActivity(intent)
-//        finish()
+        finish()
     }
 
     private fun goToMain() {

@@ -11,7 +11,8 @@ data class Paciente (
     val cedula: String? = null,
     val telefono: String? = null,
     val sexo: String? = null,
-    var imagenUrl: String? = null
+    var imagenUrl: String? = null,
+    var calificacionGeneral: Float? = null
 ) {
     public fun toJson() = klaxon.toJsonString(this)
 

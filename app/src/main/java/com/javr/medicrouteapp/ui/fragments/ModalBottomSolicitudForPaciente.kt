@@ -14,6 +14,7 @@ import com.javr.medicrouteapp.R
 import com.javr.medicrouteapp.data.network.firebase.SolicitudProvider
 import com.javr.medicrouteapp.data.network.model.Solicitud
 import com.javr.medicrouteapp.ui.paciente.MapPacienteActivity
+import java.util.Date
 
 class ModalBottomSolicitudForPaciente : BottomSheetDialogFragment() {
 
@@ -67,14 +68,14 @@ class ModalBottomSolicitudForPaciente : BottomSheetDialogFragment() {
     }
 
     private fun aceptarValorSolicitud(idPaciente: String) {
-        solicitudProvider.updateStatus(idPaciente, "aceptado").addOnCompleteListener {
+        solicitudProvider.updateStatus(idPaciente, "aceptado", Date().time).addOnCompleteListener {
 //            (activity as? MapMedicoActivity)?.timer?.cancel() // Detengo el timer de la modal que se lanza en MapMedicoActivity
             dismiss()
         }
     }
 
     private fun cancelarValorSolicitud(idPaciente: String) {
-        solicitudProvider.updateStatus(idPaciente, "cancelado").addOnCompleteListener {
+        solicitudProvider.updateStatus(idPaciente, "cancelado", Date().time).addOnCompleteListener {
 //            (activity as? MapMedicoActivity)?.timer?.cancel() // Detengo el timer de la modal que se lanza en MapMedicoActivity
             goToMapPaciente()
             dismiss()

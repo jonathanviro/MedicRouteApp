@@ -10,10 +10,7 @@ import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -38,15 +35,12 @@ import com.google.firebase.firestore.ListenerRegistration
 import com.javr.medicrouteapp.R
 import com.javr.medicrouteapp.data.network.firebase.AuthProvider
 import com.javr.medicrouteapp.data.network.firebase.GeoProvider
-import com.javr.medicrouteapp.data.network.firebase.HistorialProvider
 import com.javr.medicrouteapp.data.network.firebase.SolicitudProvider
 import com.javr.medicrouteapp.data.network.model.Historial
 import com.javr.medicrouteapp.data.network.model.Paciente
 import com.javr.medicrouteapp.data.network.model.Solicitud
 import com.javr.medicrouteapp.data.sharedpreferences.PacienteManager
 import com.javr.medicrouteapp.databinding.ActivityMapRutaConsultorioBinding
-import com.javr.medicrouteapp.ui.LoginActivity
-import com.javr.medicrouteapp.ui.medico.PerfilMedicoActivity
 import com.javr.medicrouteapp.utils.MyToolbar
 
 class MapRutaConsultorioActivity : AppCompatActivity(), OnMapReadyCallback, Listener,
@@ -106,15 +100,18 @@ class MapRutaConsultorioActivity : AppCompatActivity(), OnMapReadyCallback, List
                 Log.d("FIRESTORE", "SearchActivity/DATA ${solicitud?.toJson()}")
 
                 if (solicitud?.status == "iniciado") {
-                    Toast.makeText(this, "Solicitud Iniciada", Toast.LENGTH_LONG).show()
+                    Log.d("FIRESTORE", "MapRutaConsultorioActivity/ Solicitud Iniciada")
+//                    Toast.makeText(this, "Solicitud Iniciada", Toast.LENGTH_LONG).show()
                     binding.btnCancelarConsulta.visibility = View.GONE
                 } else if(solicitud?.status == "finalizado"){
-                    Toast.makeText(this, "Solicitud Aceptada", Toast.LENGTH_LONG).show()
+                    Log.d("FIRESTORE", "MapRutaConsultorioActivity/ Solicitud Aceptada")
+//                    Toast.makeText(this, "Solicitud Aceptada", Toast.LENGTH_LONG).show()
                     binding.btnVerDiagnostico.visibility = View.VISIBLE
                     goToDiagnostico()
                     solicitudListener?.remove()
                 } else if(solicitud?.status == "cancelado"){
-                    Toast.makeText(this, "Solicitud Cancelado", Toast.LENGTH_LONG).show()
+                    Log.d("FIRESTORE", "MapRutaConsultorioActivity/ Solicitud Cancelado")
+//                    Toast.makeText(this, "Solicitud Cancelado", Toast.LENGTH_LONG).show()
                     goToMapPaciente()
                     solicitudListener?.remove()
                 }
@@ -290,37 +287,6 @@ class MapRutaConsultorioActivity : AppCompatActivity(), OnMapReadyCallback, List
         )
     }
 
-//    private fun createHistorial() {
-//        val historial = Historial(
-//            idMedicoAsignado = authProvider.getId(),
-//            idPaciente = solicitud?.idPaciente,
-//            origin = solicitud?.origin,
-//            destination = solicitud?.destination,
-//            originLat = solicitud?.originLat,
-//            originLng = solicitud?.originLng,
-//            destinationLat = solicitud?.destinationLat,
-//            destinationLng = solicitud?.destinationLng,
-//            timestamp = Date().time
-//        )
-//
-//        historialProvider.create(historial).addOnCompleteListener {
-//            if (it.isSuccessful) {
-//                solicitudProvider.updateStatus(solicitud?.idPaciente!!, "finished")
-//                    .addOnCompleteListener {
-//                        if (it.isSuccessful) {
-//                            goToCalificationClient()
-//                        }
-//                    }
-//            }
-//        }
-//    }
-
-//    private fun goToCalificationClient() {
-//        val intent = Intent(this, CalificationClientActivity::class.java)
-//        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-//        startActivity(intent)
-//    }
-
     private fun removeSolicitud() {
         solicitudProvider.getEstadoSolicitud().get().addOnSuccessListener { document ->
             if(document.exists()){
@@ -334,7 +300,6 @@ class MapRutaConsultorioActivity : AppCompatActivity(), OnMapReadyCallback, List
     }
 
     private fun goToVistaPaciente() {
-        Toast.makeText(this@MapRutaConsultorioActivity, "IR A VISTA PACIENTE", Toast.LENGTH_SHORT).show()
         val intent = Intent(this, MapPacienteActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK//Convertir activity en la activity principal. Eliminando el historial de pantallas
         startActivity(intent)
@@ -357,40 +322,6 @@ class MapRutaConsultorioActivity : AppCompatActivity(), OnMapReadyCallback, List
     ) {
         //DIBUJAR RUTA
         directionUtil.drawPath(WAY_POINT_TAG)
-    }
-
-    private fun goToMain() {
-        authProvider.logout()
-        val intent = Intent(this, LoginActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
-    }
-
-    private fun goToHistorial() {
-        val intent = Intent(this, HistorialPacienteActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_contextual, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.option_one) {
-            val intent = Intent(this, PerfilPacienteActivity::class.java)
-            startActivity(intent)
-        }
-
-        if (item.itemId == R.id.option_two) {
-            goToHistorial()
-        }
-
-        if (item.itemId == R.id.option_three) {
-            goToMain()
-        }
-
-        return super.onOptionsItemSelected(item)
     }
 
     override fun locationOn() {

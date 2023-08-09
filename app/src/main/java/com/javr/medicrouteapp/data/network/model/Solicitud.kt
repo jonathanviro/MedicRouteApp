@@ -22,9 +22,8 @@ data class Solicitud (
     val pacienteLat: Double? = null,
     val pacienteLng: Double? = null,
     val consultorioLat: Double? = null,
-    val consultorioLng: Double? = null
-
-
+    val consultorioLng: Double? = null,
+    val timestampActualizacion: Long? = null,
 ) :Parcelable {
     public fun toJson() = klaxon.toJsonString(this)
 

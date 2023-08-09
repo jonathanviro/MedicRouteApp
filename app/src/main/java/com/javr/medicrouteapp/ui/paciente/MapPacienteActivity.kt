@@ -27,6 +27,7 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.firestore.GeoPoint
 import com.javr.medicrouteapp.R
+import com.javr.medicrouteapp.core.Global
 import com.javr.medicrouteapp.data.network.firebase.AuthProvider
 import com.javr.medicrouteapp.data.network.firebase.GeoProvider
 import com.javr.medicrouteapp.data.network.firebase.SolicitudProvider
@@ -36,7 +37,6 @@ import com.javr.medicrouteapp.data.network.model.Solicitud
 import com.javr.medicrouteapp.data.sharedpreferences.PacienteManager
 import com.javr.medicrouteapp.databinding.ActivityMapPacienteBinding
 import com.javr.medicrouteapp.ui.LoginActivity
-import com.javr.medicrouteapp.ui.medico.PerfilMedicoActivity
 import com.javr.medicrouteapp.utils.MoveAnimation
 import com.javr.medicrouteapp.utils.MyToolbar
 import org.imperiumlabs.geofirestore.callbacks.GeoQueryEventListener
@@ -73,7 +73,13 @@ class MapPacienteActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
     }
 
     private fun initListener() {
-        binding.btnSolicitarConsulta.setOnClickListener {
+        iniWatchers()
+
+        binding.btnSolicitarConsulta.setOnClickListener { goToSearchMedico() }
+    }
+
+    private fun goToSearchMedico() {
+        if(validarFormulario()){
             val intent = Intent(this, SearchActivity::class.java)
             intent.putExtra(SearchActivity.EXTRA_NOMBRE_PACIENTE, "${shpPaciente?.nombres} ${shpPaciente?.apellidos}")
             intent.putExtra(SearchActivity.EXTRA_CONSULTA, binding.etConsulta.getText().toString())
@@ -282,12 +288,13 @@ class MapPacienteActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
         val intent = Intent(this, LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
+        finish()
     }
 
     private fun goToHistorial() {
         val intent = Intent(this, HistorialPacienteActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
+        finish()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -298,6 +305,7 @@ class MapPacienteActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
         if (item.itemId == R.id.option_one) {
             val intent = Intent(this, PerfilPacienteActivity::class.java)
             startActivity(intent)
+            finish()
         }
 
         if (item.itemId == R.id.option_two) {
@@ -315,6 +323,21 @@ class MapPacienteActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
     }
 
     override fun locationCancelled() {
+    }
+
+    private fun validarFormulario(): Boolean {
+        if (binding.etConsulta.text.toString().isNullOrEmpty()) {
+            Global.setErrorInTextInputLayout(
+                binding.tilConsulta,
+                this.getString(R.string.not_insert_consulta)
+            )
+            return false
+        }
+
+        return true
+    }
+    private fun iniWatchers() {
+        Global.setErrorInTextInputLayout(binding.etConsulta, binding.tilConsulta)
     }
 
     override fun onDestroy() {

@@ -11,14 +11,19 @@ import android.widget.Button
 import android.widget.TextView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import com.javr.medicrouteapp.R
+import com.javr.medicrouteapp.core.Global
+import com.javr.medicrouteapp.data.network.firebase.AuthProvider
 import com.javr.medicrouteapp.data.network.firebase.SolicitudProvider
 import com.javr.medicrouteapp.data.network.model.Medico
 import com.javr.medicrouteapp.data.network.model.Solicitud
 import com.javr.medicrouteapp.data.sharedpreferences.MedicoManager
 import com.javr.medicrouteapp.ui.medico.SolicitudesActivity
+import java.util.Calendar
+import java.util.Date
 
 class ModalBottomSolicitudForMedico : BottomSheetDialogFragment() {
 
@@ -29,11 +34,14 @@ class ModalBottomSolicitudForMedico : BottomSheetDialogFragment() {
     private var shpMedico: Medico? = null
     private lateinit var tvPaciente: TextView
     private lateinit var tvConsulta: TextView
+    private lateinit var tilValorConsulta: TextInputLayout
+    private lateinit var tilHoraAtencion: TextInputLayout
     private lateinit var etValorConsulta: TextInputEditText
     private lateinit var etHoraAtencion: TextInputEditText
     private lateinit var btnEnviar: Button
     private lateinit var btnCancelar: Button
 
+    private val authProvider = AuthProvider()
     private val solicitudProvider = SolicitudProvider()
     private lateinit var solicitud: Solicitud
 
@@ -48,10 +56,14 @@ class ModalBottomSolicitudForMedico : BottomSheetDialogFragment() {
 
         tvPaciente = view.findViewById(R.id.tvPaciente)
         tvConsulta = view.findViewById(R.id.tvConsulta)
+        tilValorConsulta = view.findViewById(R.id.tilValorConsulta)
+        tilHoraAtencion = view.findViewById(R.id.tilHoraAtencion)
         etValorConsulta = view.findViewById(R.id.etValorConsulta)
         etHoraAtencion = view.findViewById(R.id.etHoraAtencion)
         btnEnviar = view.findViewById(R.id.btnEnviar)
         btnCancelar = view.findViewById(R.id.btnCancelar)
+
+        iniWatchers()
 
         //  Datos de la solicitud recibida
         val dataSolicitud = arguments?.getString("solicitud")
@@ -71,27 +83,31 @@ class ModalBottomSolicitudForMedico : BottomSheetDialogFragment() {
     }
 
     private fun aceptarSolicitud(idPaciente: String) {
-        solicitudProvider.enviarPrecioConsulta(
-            idPaciente,
-            "valorado",
-            "${shpMedico?.nombres} ${shpMedico?.apellidos}",
-            "${shpMedico?.razonSocial}",
-            etValorConsulta.text.toString().toDouble(),
-            etHoraAtencion.text.toString(),
-            shpMedico?.consultorioLat!!,
-            shpMedico?.consultorioLng!!
-        ).addOnCompleteListener {
-            (activity as? SolicitudesActivity)?.isValorizando = false // Permito recibir cosnultas de la modal que se lanza en SolciitudesActivity
-            if (it.isSuccessful) {
+        if (validarFormulario()){
+            val solicitud = Solicitud(
+                idPaciente = idPaciente,
+                status = "valorado",
+                nombreMedico = "${shpMedico?.nombres} ${shpMedico?.apellidos}",
+                nombreConsultorio = "${shpMedico?.razonSocial}",
+                precio = etValorConsulta.text.toString().toDouble(),
+                horaAgendada = etHoraAtencion.text.toString(),
+                consultorioLat = shpMedico?.consultorioLat!!,
+                consultorioLng = shpMedico?.consultorioLng!!,
+                timestampActualizacion = Date().time
+            )
+
+            solicitudProvider.enviarPrecioConsulta(solicitud).addOnCompleteListener {
+                (activity as? SolicitudesActivity)?.isValorizando = false // Permito recibir cosnultas de la modal que se lanza en SolciitudesActivity
+                if (it.isSuccessful) {
 //                geoProvider.removeLocation(authProvider.getId())  DESCOMENTAR PARA UTILIZARLO DESPUES
-                dismiss()
+                    dismiss()
+                }
             }
         }
     }
 
     private fun cancelarSolicitud(idPaciente: String) {
-        solicitudProvider.updateStatus(idPaciente, "cancelado").addOnCompleteListener {
-//            (activity as? MapMedicoActivity)?.timer?.cancel() // Detengo el timer de la modal que se lanza en MapMedicoActivity
+        solicitudProvider.updateStatus(idPaciente, "cancelado", Date().time).addOnCompleteListener {
             dismiss()
         }
     }
@@ -113,31 +129,63 @@ class ModalBottomSolicitudForMedico : BottomSheetDialogFragment() {
         val isSystem24Hour = is24HourFormat(requireContext())
         val clockFormat = if (isSystem24Hour) TimeFormat.CLOCK_24H else TimeFormat.CLOCK_12H
 
+        val calendar = Calendar.getInstance()
+        val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
+        val currentMinute = calendar.get(Calendar.MINUTE)
+        val roundedMinute = (currentMinute / 15) * 15 // Round down to nearest 15 minutes
+
         val picker =
             MaterialTimePicker.Builder()
-                .setTimeFormat(TimeFormat.CLOCK_12H)
-                .setHour(12)
-                .setMinute(10)
-                .setTitleText("Select Appointment time")
+                .setTimeFormat(clockFormat)
+                .setHour(currentHour)
+                .setMinute(roundedMinute)
+                .setTitleText("Selecciona la hora de la cita")
                 .build()
 
         picker.show(childFragmentManager, "TAG")
 
         picker.addOnPositiveButtonClickListener {
-            Log.d("FRAGMENT HORA", "POSITIVE")
             val h = picker.hour
             val min = picker.minute
-            Log.d("FRAGMENT HORA", "HORA: ${h} : ${min}")
-            etHoraAtencion.setText("${h} : ${min}")
+            etHoraAtencion.setText("$h:${String.format("%02d", min)}")
         }
+
         picker.addOnNegativeButtonClickListener {
             // call back code
         }
+
         picker.addOnCancelListener {
             // call back code
         }
+
         picker.addOnDismissListener {
             // call back code
         }
+    }
+
+
+
+    private fun validarFormulario(): Boolean {
+        if (etValorConsulta.text.toString().isNullOrEmpty()) {
+            Global.setErrorInTextInputLayout(
+                tilValorConsulta,
+                this.getString(R.string.not_insert_valor)
+            )
+            return false
+        }
+
+        if (etHoraAtencion.text.toString().isNullOrEmpty()) {
+            Global.setErrorInTextInputLayout(
+                tilHoraAtencion,
+                this.getString(R.string.not_insert_hora)
+            )
+            return false
+        }
+
+        return true
+    }
+    private fun iniWatchers() {
+        Global.setErrorInTextInputLayout(etValorConsulta, tilValorConsulta)
+        Global.setErrorInTextInputLayout(etHoraAtencion, tilHoraAtencion)
     }
 }

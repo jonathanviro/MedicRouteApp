@@ -127,7 +127,7 @@ class SignupUsuarioActivity : AppCompatActivity() {
                             val signInMethods = task.result?.signInMethods
                             if (signInMethods != null && signInMethods.isNotEmpty()) {
                                 dialogoCarga.dismiss()
-                                Toast.makeText(this@SignupUsuarioActivity, "Correo ingresado ya se encuentra en uso", Toast.LENGTH_LONG).show()
+                                Global.setErrorInTextInputLayout( binding.tilCorreo, this.getString(R.string.exist_email))
                             } else {
                                 authProvider.registrer(binding.etCorreo.text.toString(), binding.etPassword.text.toString()).addOnCompleteListener {
                                     if (it.isSuccessful){
@@ -150,7 +150,7 @@ class SignupUsuarioActivity : AppCompatActivity() {
                                                     pacienteProvider.create(paciente).addOnCompleteListener {
                                                         if(it.isSuccessful){
                                                             dialogoCarga.dismiss()
-                                                            Toast.makeText(this@SignupUsuarioActivity, "REGISTRO EXITOSO", Toast.LENGTH_LONG).show()
+                                                            Log.e("FIRESTORE", "REGISTRO EXITOSO")
                                                             goToVistaPaciente()
                                                         }else{
                                                             dialogoCarga.dismiss()
@@ -188,7 +188,7 @@ class SignupUsuarioActivity : AppCompatActivity() {
 
                                                             medicoProvider.create(medico).addOnCompleteListener {
                                                                 if(it.isSuccessful){
-                                                                    Toast.makeText(this@SignupUsuarioActivity, "REGISTRO EXITOSO", Toast.LENGTH_LONG).show()
+                                                                    Log.e("FIRESTORE", "REGISTRO EXITOSO")
                                                                     if(medico.status == "activo"){
                                                                         dialogoCarga.dismiss()
                                                                         goToVistaMedico()

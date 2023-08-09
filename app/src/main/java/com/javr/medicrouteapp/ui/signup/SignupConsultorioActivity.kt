@@ -44,20 +44,17 @@ class SignupConsultorioActivity : AppCompatActivity(), OnMapReadyCallback,
         binding = ActivitySignupConsultorioBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        initMap()
-        initComponents()
-        initListener()
-    }
+        Toolbar().showToolbar(this, "Registro de Consultorio Médico", false)
 
-    private fun initComponents() {
-        Toolbar().showToolbar(this, "Registro de Consultorio Médico", true)
+        initMap()
+        initListener()
     }
 
     private fun initListener() {
         iniWatchers()
 
         binding.btnNext.setOnClickListener {
-            if(Validator.isValidRUC(binding.etRuc.text.toString())){
+            if(validarFormulario()){
                 val intent = Intent(this, SignupUsuarioActivity::class.java)
                 intent.putExtra(SignupUsuarioActivity.EXTRA_TIPO_USUARIO, "MEDICO")
                 intent.putExtra(SignupUsuarioActivity.EXTRA_RAZON_SOCIAL, binding.etRazonSocial.text.toString())
@@ -184,8 +181,46 @@ class SignupConsultorioActivity : AppCompatActivity(), OnMapReadyCallback,
             }
         }
 
+    private fun validarFormulario(): Boolean {
+        if (binding.etRazonSocial.text.toString().isNullOrEmpty()) {
+            Global.setErrorInTextInputLayout(
+                binding.tilRazonSocial,
+                this.getString(R.string.not_insert_razon_social)
+            )
+            return false
+        }
+
+        if (binding.etRuc.text.toString().isNullOrEmpty()) {
+            Global.setErrorInTextInputLayout(
+                binding.tilRuc,
+                this.getString(R.string.not_insert_ruc)
+            )
+            return false
+        } else {
+            if (!Validator.isValidRUC(binding.etRuc.text.toString())) {
+                Global.setErrorInTextInputLayout(
+                    binding.tilRuc,
+                    this.getString(R.string.invalid_ruc)
+                )
+                return false
+            }
+        }
+
+        if (binding.etRegistroSanitario.text.toString().isNullOrEmpty()) {
+            Global.setErrorInTextInputLayout(
+                binding.tilRegistroSanitario,
+                this.getString(R.string.not_insert_registro_sanitario)
+            )
+            return false
+        }
+
+        return true
+    }
+
     private fun iniWatchers() {
+        Global.setErrorInTextInputLayout(binding.etRazonSocial, binding.tilRazonSocial)
         Global.setErrorInTextInputLayout(binding.etRuc, binding.tilRuc)
+        Global.setErrorInTextInputLayout(binding.etRegistroSanitario, binding.tilRegistroSanitario)
     }
     override fun onDestroy() {
         super.onDestroy()

@@ -198,20 +198,23 @@ class SolicitudesActivity : AppCompatActivity() {
         val intent = Intent(this, LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
+        finish()
     }
     private fun goToHistorialAtenciones() {
         val intent = Intent(this, HistorialAtencionesActivity::class.java)
         startActivity(intent)
+        finish()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_contextual, menu)
+        menuInflater.inflate(R.menu.menu_medico, menu)
         return super.onCreateOptionsMenu(menu)
     }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.option_one) {
             val intent = Intent(this, PerfilMedicoActivity::class.java)
             startActivity(intent)
+            finish()
         }
 
         if (item.itemId == R.id.option_two) {

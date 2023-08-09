@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.javr.medicrouteapp.R
 import com.javr.medicrouteapp.data.network.firebase.AuthProvider
@@ -14,9 +13,9 @@ import com.javr.medicrouteapp.data.network.firebase.HistorialProvider
 import com.javr.medicrouteapp.data.network.model.Historial
 import com.javr.medicrouteapp.databinding.ActivityHistorialAtencionesBinding
 import com.javr.medicrouteapp.ui.LoginActivity
-import com.javr.medicrouteapp.ui.adapter.HistorialAdapter
 import com.javr.medicrouteapp.ui.adapter.HistorialAtencionAdapter
 import com.javr.medicrouteapp.ui.paciente.DetailDiagnosticoActivity
+import com.javr.medicrouteapp.ui.paciente.MapPacienteActivity
 import com.javr.medicrouteapp.utils.MyToolbar
 
 class HistorialAtencionesActivity : AppCompatActivity() {
@@ -33,7 +32,7 @@ class HistorialAtencionesActivity : AppCompatActivity() {
         binding = ActivityHistorialAtencionesBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        MyToolbar().showToolbar(this, "Detalle Atención", false)
+        MyToolbar().showToolbar(this, "Historial Atenciones", false)
 
         initRecyclerView()
         getAllHistorial()
@@ -60,7 +59,7 @@ class HistorialAtencionesActivity : AppCompatActivity() {
                     lstHistorialAtenciones.addAll(historialAtencionesList)
                     historialAtencionAdapter.notifyDataSetChanged()
                 }else{
-                    Toast.makeText(this, "No se encontro el historial", Toast.LENGTH_LONG).show()
+                    Log.d("FIRESTORE", "HistorialAtencionesActivity/ No se encontro el historial")
                 }
             }
         }
@@ -80,6 +79,7 @@ class HistorialAtencionesActivity : AppCompatActivity() {
         intent.putExtra(DetailDiagnosticoActivity.EXTRA_TIPO_USUARIO, "MEDICO")
         intent.putExtra(DetailDiagnosticoActivity.EXTRA_HISTORIAL, historial)
         startActivity(intent)
+        finish()
     }
 
     private fun goToMain() {
@@ -87,15 +87,19 @@ class HistorialAtencionesActivity : AppCompatActivity() {
         val intent = Intent(this, LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
+        finish()
+
     }
 
     private fun goToHistorial() {
         val intent = Intent(this, HistorialAtencionesActivity::class.java)
         startActivity(intent)
+        finish()
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_contextual, menu)
+        menuInflater.inflate(R.menu.menu_medico, menu)
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -103,6 +107,8 @@ class HistorialAtencionesActivity : AppCompatActivity() {
         if (item.itemId == R.id.option_one) {
             val intent = Intent(this, PerfilMedicoActivity::class.java)
             startActivity(intent)
+            finish()
+
         }
 
         if (item.itemId == R.id.option_two) {
@@ -114,5 +120,11 @@ class HistorialAtencionesActivity : AppCompatActivity() {
         }
 
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onBackPressed() {
+        onBackPressedDispatcher.onBackPressed()
+        startActivity(Intent(this, SolicitudesActivity::class.java))
+        finish()
     }
 }

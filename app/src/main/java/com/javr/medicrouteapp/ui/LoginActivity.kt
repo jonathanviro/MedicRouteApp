@@ -6,7 +6,8 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.gms.maps.model.LatLng
+import androidx.core.splashscreen.SplashScreen
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.javr.medicrouteapp.R
 import com.javr.medicrouteapp.core.Global
 import com.javr.medicrouteapp.core.Validator
@@ -30,7 +31,9 @@ import com.javr.medicrouteapp.ui.paciente.MapPacienteActivity
 import com.javr.medicrouteapp.ui.paciente.MapRutaConsultorioActivity
 
 class LoginActivity : AppCompatActivity() {
+    private lateinit var screenSplash: SplashScreen
     private lateinit var binding: ActivityLoginBinding
+    private val startTime = System.currentTimeMillis()
     private val authProvider = AuthProvider()
     private val administradorProvider = AdministradorProvider()
     private val pacienteProvider = PacienteProvider()
@@ -39,9 +42,14 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var dialogoCarga: AlertDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        screenSplash = installSplashScreen()
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        screenSplash.setKeepOnScreenCondition{
+            true
+        }
 
         initComponents()
         initListener()
@@ -149,6 +157,7 @@ class LoginActivity : AppCompatActivity() {
     private fun goToSignup() {
         val intent = Intent(this, TipoUsuarioActivity::class.java)
         startActivity(intent)
+        finish()
     }
 
     private fun goToVistaPaciente() {
@@ -179,6 +188,7 @@ class LoginActivity : AppCompatActivity() {
         val intent = Intent(this, MapRutaConsultorioActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(intent)
+        finish()
     }
 
     private fun validarFormulario(): Boolean {
@@ -222,6 +232,11 @@ class LoginActivity : AppCompatActivity() {
 
         if (authProvider.existSession()){
             searchUsuario()
+        }else{
+            screenSplash.setKeepOnScreenCondition{
+                val currentTime = System.currentTimeMillis()
+                currentTime - startTime < 1500
+            }
         }
     }
 }

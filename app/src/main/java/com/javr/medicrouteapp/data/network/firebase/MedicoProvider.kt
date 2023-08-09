@@ -11,7 +11,6 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageTask
 import com.google.firebase.storage.UploadTask
 import com.javr.medicrouteapp.data.network.model.Medico
-import java.io.File
 
 class MedicoProvider {
     private val db = Firebase.firestore.collection("Medicos")
@@ -86,5 +85,9 @@ class MedicoProvider {
     fun getPdfUrl(id: String): Task<Uri> {
         val ref = storagePdf.child("$id.pdf")
         return ref.downloadUrl
+    }
+
+    fun getAllMedicos(): Query {
+        return db.orderBy("apellidos")
     }
 }

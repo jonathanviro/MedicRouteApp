@@ -19,7 +19,7 @@
     <string name="renipress">Código RENIPRESS</string>
     <string name="ubication">Ubicacion</string>
     <string name="registro_sanitario">Registro Sanitario</string>
-    <string name="upload_pdf">Subir PDF</string>
+    <string name="upload_pdf">Cargar</string>
     <string name="download_pdf">Descargar</string>
     <string name="paciente">Paciente</string>
     <string name="medico">Médico</string>
@@ -40,9 +40,21 @@
     <string name="not_insert_passport">No ha ingresado su cédula</string>
     <string name="not_insert_phone">No ha ingresado su número de teléfono celular</string>
     <string name="invalid_email">El correo no tiene el formato correcto: usuario@ejemplo.com</string>
+    <string name="noexist_email">Este correo ya se encuentra registrado</string>
     <string name="exist_email">Esté correo ya se encuentra en uso</string>
     <string name="invalid_password">Contraseña muy corta. Mínimo 6 caracteres - máximo 14 caracteres</string>
     <string name="invalid_passport">Cédula invalida</string>
     <string name="invalid_phone">Número de teléfono celular invalido</string>
     <string name="invalid_confirm_password">Las contraseñas no coinciden</string>
+    <string name="not_insert_razon_social">No ha ingresado Razón Social</string>
+    <string name="not_insert_ruc">No ha ingresado su RUC</string>
+    <string name="not_insert_registro_sanitario">No ha ingresado Registro Sanitario</string>
+    <string name="invalid_ruc">RUC invalido</string>
+    <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus tincidunt nunc malesuada commodo ornare. Phasellus eleifend vitae ex ut faucibus. Vivamus dui nibh, tincidunt in pretium sed, dignissim nec mi. Cras tincidunt quam quis blandit bibendum.</string>
+    <string name="not_insert_consulta">No ha ingresado la consulta médica</string>
+    <string name="not_insert_valor">No ha ingresado valor de la consulta médica</string>
+    <string name="not_insert_hora">No ha ingresado hora de la atención</string>
+    <string name="not_insert_diagnostico">No ha ingresado diagnostico</string>
+    <string name="not_insert_receta">No ha ingresado receta</string>
+
 </resources>

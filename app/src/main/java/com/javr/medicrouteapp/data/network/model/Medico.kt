@@ -21,7 +21,8 @@ data class Medico (
     val consultorioLng: Double? = null,
     var imagenUrl: String? = null,
     var pdfUrl: String? = null,
-    val status: String? = null
+    val status: String? = null,
+    var calificacionGeneral: Float? = null
 ) : Parcelable {
     public fun toJson() = klaxon.toJsonString(this)
 

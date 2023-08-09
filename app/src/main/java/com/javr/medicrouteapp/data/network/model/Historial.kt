@@ -3,7 +3,6 @@ package com.javr.medicrouteapp.data.network.model
 import android.os.Parcelable
 import com.beust.klaxon.Klaxon
 import kotlinx.parcelize.Parcelize
-import java.sql.Timestamp
 
 private val klaxon = Klaxon()
 

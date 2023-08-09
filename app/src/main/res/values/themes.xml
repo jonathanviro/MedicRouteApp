@@ -31,10 +31,24 @@
 
     <style name="Theme.Medicroute" parent="Base.Theme.Medicroute" />
 
+    <style name="AppTheme.Light" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">@color/colorPrimaryLight</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDarkLight</item>
+        <item name="colorAccent">@color/colorAccentLight</item>
+        <item name="android:textColorPrimary">@color/textColorPrimaryLight</item>
+    </style>
+
     <style name="CustomDialogoCarga" parent="android:Theme.DeviceDefault.Light.Dialog">
         <item name="DialogTitleAppearance">@android:style/TextAppearance.Medium</item>
         <item name="DialogTitleText">Updating…</item>
         <item name="DialogSpotColor">@color/md_theme_dark_inversePrimary</item>
         <item name="DialogSpotCount">4</item>
+    </style>
+    
+    <style name="Theme.AppCompat.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/md_theme_dark_onTertiary</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/logo_app_lienzo</item>
+        <item name="windowSplashScreenAnimationDuration">300</item>
+        <item name="postSplashScreenTheme">@style/Base.Theme.Medicroute</item>
     </style>
 </resources>

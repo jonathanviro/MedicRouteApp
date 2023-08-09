@@ -2,6 +2,7 @@ package com.javr.medicrouteapp.ui.medico
 
 import android.Manifest
 import android.app.Activity
+import android.app.AlertDialog
 import android.app.DownloadManager
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -17,6 +18,7 @@ import android.provider.OpenableColumns
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -38,7 +40,6 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.javr.medicrouteapp.R
 import com.javr.medicrouteapp.core.Global
-import com.javr.medicrouteapp.core.Validator
 import com.javr.medicrouteapp.data.network.firebase.AuthProvider
 import com.javr.medicrouteapp.data.network.firebase.MedicoProvider
 import com.javr.medicrouteapp.data.network.model.Medico
@@ -46,9 +47,11 @@ import com.javr.medicrouteapp.data.sharedpreferences.MedicoManager
 import com.javr.medicrouteapp.databinding.ActivityPerfilMedicoBinding
 import com.javr.medicrouteapp.toolbar.Toolbar
 import com.javr.medicrouteapp.ui.LoginActivity
+import com.javr.medicrouteapp.ui.paciente.MapPacienteActivity
 
 class PerfilMedicoActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleMap.OnMapLongClickListener, Listener {
     private lateinit var binding: ActivityPerfilMedicoBinding
+    private lateinit var dialogoCarga: AlertDialog
     private var shpMedico: Medico? = null
     private val authProvider = AuthProvider()
     private val medicoProvider = MedicoProvider()
@@ -108,6 +111,7 @@ class PerfilMedicoActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.
 
     private fun initComponents() {
         iniWatchers()
+
         binding.etNombres.setText(shpMedico?.nombres)
         binding.etApellidos.setText(shpMedico?.apellidos)
         binding.etCedula.setText(shpMedico?.cedula)
@@ -121,6 +125,11 @@ class PerfilMedicoActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.
         if(shpMedico?.imagenUrl != null){
             Glide.with(this).load(shpMedico?.imagenUrl).into(binding.ivFotoPerfil)
         }
+
+        //Setear Valores del spinner
+        val sexoArray = resources.getStringArray(R.array.sexo)
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, sexoArray)
+        binding.tvSexo.setAdapter(adapter)
     }
 
     private fun iniWatchers() {
@@ -159,52 +168,84 @@ class PerfilMedicoActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.
                 pdfUrl = shpMedico?.pdfUrl)
 
 
-            if(uriImagen != null){
+            if(uriImagen != null && uriPdf != null){
                 medicoProvider.uploadImagen(authProvider.getId(), uriImagen!!).addOnSuccessListener {taskSnapshot ->
                     medicoProvider.getImagenUrl(authProvider.getId()).addOnSuccessListener {url ->
                         val imageUrl = url.toString()
                         medico.imagenUrl = imageUrl
                         Log.d("STORAGE", "URL IMAGE: $imageUrl")
 
-                        medicoProvider.update(medico).addOnCompleteListener {
-                            if(it.isSuccessful){
-                                dialogoCarga.dismiss()
-                                MedicoManager.guardarMedico(this, medico)
-                                Toast.makeText(this@PerfilMedicoActivity, "Datos actualizados", Toast.LENGTH_LONG).show()
-                            }else{
-                                dialogoCarga.dismiss()
-                                Toast.makeText(this@PerfilMedicoActivity, "No se pudo actualizar la información", Toast.LENGTH_LONG).show()
-                            }
-                        }
-                    }
-                }
-            }else if(uriPdf != null){
-                medicoProvider.uploadPdf(authProvider.getId(), uriPdf!!).addOnSuccessListener {taskSnapshotPdf ->
-                    medicoProvider.getPdfUrl(authProvider.getId()).addOnSuccessListener { urlPdf ->
-                        val pdfUrl = urlPdf.toString()
-                        medico.pdfUrl = pdfUrl
-                        Log.d("STORAGE", "URL PDF: $pdfUrl")
-                        medicoProvider.update(medico).addOnCompleteListener {
-                            if(it.isSuccessful){
-                                dialogoCarga.dismiss()
-                                MedicoManager.guardarMedico(this, medico)
-                                Toast.makeText(this@PerfilMedicoActivity, "Datos actualizados", Toast.LENGTH_LONG).show()
-                            }else{
-                                dialogoCarga.dismiss()
-                                Toast.makeText(this@PerfilMedicoActivity, "No se pudo actualizar la información", Toast.LENGTH_LONG).show()
+                        medicoProvider.uploadPdf(authProvider.getId(), uriPdf!!).addOnSuccessListener {taskSnapshotPdf ->
+                            medicoProvider.getPdfUrl(authProvider.getId()).addOnSuccessListener { urlPdf ->
+                                val pdfUrl = urlPdf.toString()
+                                medico.pdfUrl = pdfUrl
+                                Log.d("STORAGE", "URL PDF: $pdfUrl")
+                                medicoProvider.update(medico).addOnCompleteListener {
+                                    if(it.isSuccessful){
+                                        dialogoCarga.dismiss()
+                                        MedicoManager.guardarMedico(this, medico)
+                                        Toast.makeText(this@PerfilMedicoActivity, "Datos actualizados", Toast.LENGTH_LONG).show()
+                                        goToSolicitudes()
+                                    }else{
+                                        dialogoCarga.dismiss()
+                                        Toast.makeText(this@PerfilMedicoActivity, "No se pudo actualizar la información", Toast.LENGTH_LONG).show()
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }else{
-                medicoProvider.update(medico).addOnCompleteListener {
-                    if(it.isSuccessful){
-                        dialogoCarga.dismiss()
-                        MedicoManager.guardarMedico(this, medico)
-                        Toast.makeText(this@PerfilMedicoActivity, "Datos actualizados", Toast.LENGTH_LONG).show()
-                    }else{
-                        dialogoCarga.dismiss()
-                        Toast.makeText(this@PerfilMedicoActivity, "No se pudo actualizar la información", Toast.LENGTH_LONG).show()
+                if(uriImagen != null){
+                    medicoProvider.uploadImagen(authProvider.getId(), uriImagen!!).addOnSuccessListener {taskSnapshot ->
+                        medicoProvider.getImagenUrl(authProvider.getId()).addOnSuccessListener {url ->
+                            val imageUrl = url.toString()
+                            medico.imagenUrl = imageUrl
+                            Log.d("STORAGE", "URL IMAGE: $imageUrl")
+
+                            medicoProvider.update(medico).addOnCompleteListener {
+                                if(it.isSuccessful){
+                                    dialogoCarga.dismiss()
+                                    MedicoManager.guardarMedico(this, medico)
+                                    Toast.makeText(this@PerfilMedicoActivity, "Datos actualizados", Toast.LENGTH_LONG).show()
+                                    goToSolicitudes()
+                                }else{
+                                    dialogoCarga.dismiss()
+                                    Toast.makeText(this@PerfilMedicoActivity, "No se pudo actualizar la información", Toast.LENGTH_LONG).show()
+                                }
+                            }
+                        }
+                    }
+                }else if(uriPdf != null){
+                    medicoProvider.uploadPdf(authProvider.getId(), uriPdf!!).addOnSuccessListener {taskSnapshotPdf ->
+                        medicoProvider.getPdfUrl(authProvider.getId()).addOnSuccessListener { urlPdf ->
+                            val pdfUrl = urlPdf.toString()
+                            medico.pdfUrl = pdfUrl
+                            Log.d("STORAGE", "URL PDF: $pdfUrl")
+                            medicoProvider.update(medico).addOnCompleteListener {
+                                if(it.isSuccessful){
+                                    dialogoCarga.dismiss()
+                                    MedicoManager.guardarMedico(this, medico)
+                                    Toast.makeText(this@PerfilMedicoActivity, "Datos actualizados", Toast.LENGTH_LONG).show()
+                                    goToSolicitudes()
+                                }else{
+                                    dialogoCarga.dismiss()
+                                    Toast.makeText(this@PerfilMedicoActivity, "No se pudo actualizar la información", Toast.LENGTH_LONG).show()
+                                }
+                            }
+                        }
+                    }
+                }else{
+                    medicoProvider.update(medico).addOnCompleteListener {
+                        if(it.isSuccessful){
+                            dialogoCarga.dismiss()
+                            MedicoManager.guardarMedico(this, medico)
+                            Toast.makeText(this@PerfilMedicoActivity, "Datos actualizados", Toast.LENGTH_LONG).show()
+                            goToSolicitudes()
+                        }else{
+                            dialogoCarga.dismiss()
+                            Toast.makeText(this@PerfilMedicoActivity, "No se pudo actualizar la información", Toast.LENGTH_LONG).show()
+                        }
                     }
                 }
             }
@@ -227,22 +268,6 @@ class PerfilMedicoActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.
                 this.getString(R.string.not_insert_lastnames)
             )
             return false
-        }
-
-        if (binding.etCedula.text.toString().isNullOrEmpty()) {
-            Global.setErrorInTextInputLayout(
-                binding.tilCedula,
-                this.getString(R.string.not_insert_passport)
-            )
-            return false
-        } else {
-            if (!Validator.isValidCedula(binding.etCedula.text.toString())) {
-                Global.setErrorInTextInputLayout(
-                    binding.tilCedula,
-                    this.getString(R.string.invalid_passport)
-                )
-                return false
-            }
         }
 
         if (binding.etTelefono.text.toString().isNullOrEmpty()) {
@@ -340,26 +365,36 @@ class PerfilMedicoActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.
     override fun locationCancelled() {
     }
 
+    private fun goToSolicitudes() {
+        val intent = Intent(this, SolicitudesActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+    }
+
     private fun goToMain() {
         authProvider.logout()
         val intent = Intent(this, LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
+        finish()
+
     }
 
     private fun goToHistorialAtenciones() {
         val intent = Intent(this, HistorialAtencionesActivity::class.java)
         startActivity(intent)
+        finish()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_contextual, menu)
+        menuInflater.inflate(R.menu.menu_medico, menu)
         return super.onCreateOptionsMenu(menu)
     }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.option_one) {
             val intent = Intent(this, PerfilMedicoActivity::class.java)
             startActivity(intent)
+            finish()
         }
 
         if (item.itemId == R.id.option_two) {
@@ -383,14 +418,17 @@ class PerfilMedicoActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.
     }
 
     private fun downloadPdf() {
+        dialogoCarga = Global.dialogoCarga(this, "Espere un momento")
+        dialogoCarga.show()
+
         var pdfUrl = shpMedico?.pdfUrl
         pdfUrl?.let {
             val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
 
             val request = DownloadManager.Request(Uri.parse(pdfUrl))
                 .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                .setTitle("Descargando PDF")
-                .setDescription("Descargando archivo PDF...")
+                .setTitle("RegistroSanitario_${shpMedico?.apellidos}${shpMedico?.nombres}.pdf")
+                .setDescription("Descargando Registro Sanitario...")
                 .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "${authProvider.getId()}.pdf")
 
             val downloadId = downloadManager.enqueue(request)
@@ -398,7 +436,8 @@ class PerfilMedicoActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.
             // Opcional: Puedes agregar un BroadcastReceiver para detectar cuando se completa la descarga
             val onComplete = object : BroadcastReceiver() {
                 override fun onReceive(context: Context?, intent: Intent?) {
-                    Toast.makeText(this@PerfilMedicoActivity, "Se ha descargado el PDF", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@PerfilMedicoActivity, "Registro Sanitario Descargado", Toast.LENGTH_LONG).show()
+                    dialogoCarga.dismiss()
                 }
             }
 
@@ -428,7 +467,7 @@ class PerfilMedicoActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.
                             val fileName =
                                 if (nameIndex >= 0) it.getString(nameIndex) else uri.lastPathSegment
 
-//                            binding.tvNombrePdf.text = fileName
+                            binding.tvNombrePdf.text = fileName
                             uriPdf = uri
                         }
                         it.close()
@@ -463,4 +502,10 @@ class PerfilMedicoActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.
                 }
             }
         }
+
+    override fun onBackPressed() {
+        onBackPressedDispatcher.onBackPressed()
+        startActivity(Intent(this, SolicitudesActivity::class.java))
+        finish()
+    }
 }

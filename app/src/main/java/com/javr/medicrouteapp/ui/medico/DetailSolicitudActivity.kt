@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import com.javr.medicrouteapp.R
+import com.javr.medicrouteapp.core.Global
 import com.javr.medicrouteapp.data.network.firebase.AuthProvider
 import com.javr.medicrouteapp.data.network.firebase.GeoProvider
 import com.javr.medicrouteapp.data.network.firebase.HistorialProvider
@@ -46,13 +47,16 @@ class DetailSolicitudActivity : AppCompatActivity() {
     }
 
     private fun initListener() {
+        iniWatchers()
+
         binding.rbCalificacion.setOnRatingBarChangeListener { ratingBar, value, fromUser ->
             calificacion = value
         }
 
         binding.btnFinalizarConsulta.setOnClickListener {
-            diagnosticar()
-            goToSolicitudes()
+            if (validarFormulario()) {
+                diagnosticar()
+            }
         }
     }
 
@@ -79,7 +83,7 @@ class DetailSolicitudActivity : AppCompatActivity() {
 
         historialProvider.create(historial).addOnCompleteListener {
             if (it.isSuccessful ) {
-                solicitudProvider.updateStatus(extraObjSolicitud.idPaciente!!, "finalizado").addOnCompleteListener {
+                solicitudProvider.updateStatus(extraObjSolicitud.idPaciente!!, "finalizado", Date().time).addOnCompleteListener {
                     if(it.isSuccessful){
                         goToSolicitudes()
                     }
@@ -105,8 +109,32 @@ class DetailSolicitudActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
+    private fun validarFormulario(): Boolean {
+        if (binding.etDiagnostico.text.toString().isNullOrEmpty()) {
+            Global.setErrorInTextInputLayout(
+                binding.tilDiagnostico,
+                this.getString(R.string.not_insert_diagnostico)
+            )
+            return false
+        }
+
+        if (binding.etReceta.text.toString().isNullOrEmpty()) {
+            Global.setErrorInTextInputLayout(
+                binding.tilReceta,
+                this.getString(R.string.not_insert_receta)
+            )
+            return false
+        }
+
+        return true
+    }
+    private fun iniWatchers() {
+        Global.setErrorInTextInputLayout(binding.etDiagnostico, binding.tilDiagnostico)
+        Global.setErrorInTextInputLayout(binding.etReceta, binding.tilReceta)
+    }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_contextual, menu)
+        menuInflater.inflate(R.menu.menu_medico, menu)
         return super.onCreateOptionsMenu(menu)
     }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -124,5 +152,11 @@ class DetailSolicitudActivity : AppCompatActivity() {
         }
 
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onBackPressed() {
+        onBackPressedDispatcher.onBackPressed()
+        startActivity(Intent(this, SolicitudesActivity::class.java))
+        finish()
     }
 }
