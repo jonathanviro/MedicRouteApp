@@ -76,7 +76,7 @@ class HistorialAtencionesActivity : AppCompatActivity() {
 
     fun onSelectedItem(historial: Historial) {
         val intent = Intent(this, DetailDiagnosticoActivity::class.java)
-        intent.putExtra(DetailDiagnosticoActivity.EXTRA_TIPO_USUARIO, "MEDICO")
+        intent.putExtra(DetailDiagnosticoActivity.EXTRA_PANTALLA_PADRE, "MEDICO/HISTORIAL_ATENCIONES_ACTIVITY")
         intent.putExtra(DetailDiagnosticoActivity.EXTRA_HISTORIAL, historial)
         startActivity(intent)
         finish()

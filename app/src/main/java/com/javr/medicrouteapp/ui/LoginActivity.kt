@@ -17,6 +17,7 @@ import com.javr.medicrouteapp.data.network.firebase.MedicoProvider
 import com.javr.medicrouteapp.data.network.firebase.PacienteProvider
 import com.javr.medicrouteapp.data.network.firebase.SolicitudProvider
 import com.javr.medicrouteapp.data.network.model.Administrador
+import com.javr.medicrouteapp.data.network.model.Historial
 import com.javr.medicrouteapp.data.network.model.Medico
 import com.javr.medicrouteapp.data.network.model.Paciente
 import com.javr.medicrouteapp.data.network.model.Solicitud
@@ -27,6 +28,7 @@ import com.javr.medicrouteapp.ui.medico.EsperaMedicoActivity
 import com.javr.medicrouteapp.ui.medico.SolicitudesActivity
 import com.javr.medicrouteapp.ui.menus.OpcionesAdministradorActivity
 import com.javr.medicrouteapp.ui.menus.TipoUsuarioActivity
+import com.javr.medicrouteapp.ui.paciente.DetailDiagnosticoActivity
 import com.javr.medicrouteapp.ui.paciente.MapPacienteActivity
 import com.javr.medicrouteapp.ui.paciente.MapRutaConsultorioActivity
 
@@ -104,8 +106,10 @@ class LoginActivity : AppCompatActivity() {
                                 var solicitud = query.documents[0].toObject(Solicitud::class.java)
                                 Log.d("LOGIN SOLICITUD", "getSolicitud ${solicitud}")
 
-                                if(solicitud?.status == "aceptado" || solicitud?.status == "valorado"|| solicitud?.status == "iniciado" || solicitud?.status == "finalizado"){
-                                    goToMapRutaConsultorio()
+                                when(solicitud?.status){
+                                    "aceptado", "valorado", "iniciado" -> goToMapRutaConsultorio()
+                                    "creado" -> removeSolicitud()
+                                    "finalizado" -> goToDetailDiagnostico()
                                 }
                             }
                         }
@@ -157,7 +161,6 @@ class LoginActivity : AppCompatActivity() {
     private fun goToSignup() {
         val intent = Intent(this, TipoUsuarioActivity::class.java)
         startActivity(intent)
-        finish()
     }
 
     private fun goToVistaPaciente() {
@@ -189,6 +192,13 @@ class LoginActivity : AppCompatActivity() {
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(intent)
         finish()
+    }
+
+    private fun goToDetailDiagnostico() {
+        val intent = Intent(this, DetailDiagnosticoActivity::class.java)
+        intent.putExtra(DetailDiagnosticoActivity.EXTRA_PANTALLA_PADRE, "MEDICO/LOGIN_ACTIVITY")
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
     }
 
     private fun validarFormulario(): Boolean {
@@ -225,6 +235,15 @@ class LoginActivity : AppCompatActivity() {
         }
 
         return true
+    }
+
+    private fun removeSolicitud() {
+        solicitudProvider.getEstadoSolicitud().get().addOnSuccessListener { document ->
+            if(document.exists()){
+                solicitudProvider.remove()
+                goToVistaPaciente()
+            }
+        }
     }
 
     override fun onStart() {

@@ -28,7 +28,7 @@ class MedicoAdapter(
         val binding = ItemMedicoBinding.bind(view)
 
         fun bind(medico: Medico, onClickItemMedico: (Medico) -> Unit) {
-            binding.tvNombreMedico.text = medico.nombres
+            binding.tvNombreMedico.text = "${medico.nombres} ${medico.apellidos}"
 
             itemView.setOnClickListener {
                 onClickItemMedico(medico)

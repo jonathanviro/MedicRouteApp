@@ -74,7 +74,7 @@ class PerfilMedicoActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.
         binding = ActivityPerfilMedicoBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        Toolbar().showToolbar(this, "Mi Perfil", true)
+        Toolbar().showToolbar(this, "Mi Perfil", false)
 
         shpMedico = MedicoManager.obtenerMedico(this)
 

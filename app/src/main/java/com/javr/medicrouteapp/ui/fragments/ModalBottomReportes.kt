@@ -169,18 +169,15 @@ class ModalBottomReportes : BottomSheetDialogFragment() {
             tabla1.addCell(PdfPCell(Paragraph("REGISTRO SANITARIO", fuenteTituloNivel3))).border = 1
             tabla1.addCell(PdfPCell(Paragraph("CALIFICACIÓN", fuenteTituloNivel3))).border = 1
 
-            for(i in 1..50){
-                for(medico: Medico in medicosList){
-                    if(medico != null){
-                        //FILA
-                        tabla1.addCell(PdfPCell(Paragraph("${medico.apellidos} ${medico.nombres}", fuenteNormal))).border = 1
-                        tabla1.addCell(PdfPCell(Paragraph("${medico.razonSocial}", fuenteNormal))).border = 1
-                        tabla1.addCell(PdfPCell(Paragraph("${medico.registroSanitario}", fuenteNormal))).border = 1
-                        tabla1.addCell(PdfPCell(Paragraph("${medico.calificacionGeneral}", fuenteNormal))).border = 1
-                    }
+            for(medico: Medico in medicosList){
+                if(medico != null){
+                    //FILA
+                    tabla1.addCell(PdfPCell(Paragraph("${medico.apellidos} ${medico.nombres}", fuenteNormal))).border = 1
+                    tabla1.addCell(PdfPCell(Paragraph("${medico.razonSocial}", fuenteNormal))).border = 1
+                    tabla1.addCell(PdfPCell(Paragraph("${medico.registroSanitario}", fuenteNormal))).border = 1
+                    tabla1.addCell(PdfPCell(Paragraph("${medico.calificacionGeneral}", fuenteNormal))).border = 1
                 }
             }
-
 
             documento.add(tabla1)
 

@@ -33,13 +33,24 @@
         android:layout_gravity="center"/>
 
     <TextView
-        android:id="@+id/tvEsperando"
+        android:id="@+id/tvEstadoCuenta"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Esperando Validación de Cuenta"
+        android:text="Esperando validación de cuenta"
         android:textSize="18sp"
         android:textStyle="bold"
         android:layout_marginTop="180dp"
         android:textColor="@color/white"
         android:textAlignment="center"/>
+
+    <Button
+        android:id="@+id/btnReenviarSolicitud"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reenviar Solicitud"
+        android:layout_gravity="bottom|center"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone"/>
+
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

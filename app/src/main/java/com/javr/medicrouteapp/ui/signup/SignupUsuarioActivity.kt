@@ -19,6 +19,8 @@ import com.javr.medicrouteapp.data.network.firebase.MedicoProvider
 import com.javr.medicrouteapp.data.network.firebase.PacienteProvider
 import com.javr.medicrouteapp.data.network.model.Medico
 import com.javr.medicrouteapp.data.network.model.Paciente
+import com.javr.medicrouteapp.data.sharedpreferences.MedicoManager
+import com.javr.medicrouteapp.data.sharedpreferences.PacienteManager
 import com.javr.medicrouteapp.databinding.ActivitySignupUsuarioBinding
 import com.javr.medicrouteapp.toolbar.Toolbar
 import com.javr.medicrouteapp.ui.medico.EsperaMedicoActivity
@@ -55,28 +57,33 @@ class SignupUsuarioActivity : AppCompatActivity() {
         binding = ActivitySignupUsuarioBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        initComponents()
-        initListener()
-    }
-
-    private fun initComponents() {
         iniWatchers()
+        initListener()
 
         extraTipoUsuario = intent.getStringExtra(EXTRA_TIPO_USUARIO)
+
+        when(extraTipoUsuario){
+            "PACIENTE" -> initComponetsPaciente()
+            else -> initComponentsMedico()
+        }
+    }
+    private fun initComponetsPaciente() {
+        Toolbar().showToolbar(this, "Registro de Paciente", false)
+
+        binding.tvTituloPermisoFuncionamiento.visibility = View.GONE
+        binding.llUploadPdf.visibility = View.GONE
+        binding.llDownloadPdf.visibility = View.GONE
+    }
+
+    private fun initComponentsMedico() {
+        Toolbar().showToolbar(this, "Registro de Médico", false)
+
         extraRazonSocial = intent.getStringExtra(EXTRA_RAZON_SOCIAL)
         extraRuc = intent.getStringExtra(EXTRA_RUC)
         extraDireccion = intent.getStringExtra(EXTRA_DIRECCION)
         extraRegistroSanitario = intent.getStringExtra(EXTRA_REGISTRO_SANITARIO)
         extraConsultorioLat = intent.getDoubleExtra(EXTRA_CONSULTORIO_LAT, 0.0)
         extraConsultorioLng = intent.getDoubleExtra(EXTRA_CONSULTORIO_LNG, 0.0)
-
-        if (extraTipoUsuario.equals("PACIENTE")) {
-            Toolbar().showToolbar(this, "Registro de Paciente", true)
-            binding.llUploadPdf.visibility = View.GONE
-            binding.llDownloadPdf.visibility = View.GONE
-        } else {
-            Toolbar().showToolbar(this, "Registro de Médico", true)
-        }
     }
 
     private fun iniWatchers() {
@@ -148,6 +155,7 @@ class SignupUsuarioActivity : AppCompatActivity() {
                                                     )
 
                                                     pacienteProvider.create(paciente).addOnCompleteListener {
+                                                        PacienteManager.guardarPaciente(this, paciente)
                                                         if(it.isSuccessful){
                                                             dialogoCarga.dismiss()
                                                             Log.e("FIRESTORE", "REGISTRO EXITOSO")
@@ -186,9 +194,12 @@ class SignupUsuarioActivity : AppCompatActivity() {
                                                                 pdfUrl = pfUrl,
                                                                 status = "pendiente")
 
+
+
                                                             medicoProvider.create(medico).addOnCompleteListener {
                                                                 if(it.isSuccessful){
                                                                     Log.e("FIRESTORE", "REGISTRO EXITOSO")
+                                                                    MedicoManager.guardarMedico(this, medico)
                                                                     if(medico.status == "activo"){
                                                                         dialogoCarga.dismiss()
                                                                         goToVistaMedico()

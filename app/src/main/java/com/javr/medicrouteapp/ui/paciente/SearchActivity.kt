@@ -123,7 +123,7 @@ class SearchActivity : AppCompatActivity() {
             idPaciente = authProvider.getId(),
             idMedico = idMedico,
             status = "creado",
-            nombrePaciente = "${shpPaciente?.nombres} ${shpPaciente?.apellidos}",
+            nombrePaciente = extraNombrePaciente,
             nombreMedico = null,
             nombreConsultorio = null,
             consulta = extraConsulta,
