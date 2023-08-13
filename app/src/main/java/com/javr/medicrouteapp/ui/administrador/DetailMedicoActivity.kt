@@ -94,6 +94,10 @@ class DetailMedicoActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
             showButtonDeshabilitar()
             getAllHistorial()
         }
+
+        if(extraObjMedico.status == "pendiente"){
+            binding.btnRechazarMedico.visibility = View.VISIBLE
+        }
     }
 
     private fun getAllHistorial() {
@@ -128,7 +132,7 @@ class DetailMedicoActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
     private fun initListener() {
         binding.btnHabilitarMedico.setOnClickListener { habilitarMedico() }
         binding.btnDeshabilitarMedico.setOnClickListener { deshabilitarMedico() }
-        binding.btnCancelarMedico.setOnClickListener { goToMedicosPendientes() }
+        binding.btnRechazarMedico.setOnClickListener { rechazarMedico() }
         binding.ivDownloadPdf.setOnClickListener { downloadPdf() }
     }
 
@@ -147,6 +151,15 @@ class DetailMedicoActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
         medicoProvider.updateStatus(extraObjMedico.id!!, "pendiente").addOnCompleteListener {
             dialogoCarga.dismiss()
             goToMedicosActivos()
+        }
+    }
+
+    private fun rechazarMedico() {
+        dialogoCarga = Global.dialogoCarga(this, "Rechazando solicitud")
+        dialogoCarga.show()
+        medicoProvider.updateStatus(extraObjMedico.id!!, "rechazado").addOnCompleteListener {
+            dialogoCarga.dismiss()
+            goToMedicosPendientes()
         }
     }
 

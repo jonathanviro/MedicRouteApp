@@ -100,9 +100,13 @@ class ModalBottomSolicitudForMedico : BottomSheetDialogFragment() {
                 (activity as? SolicitudesActivity)?.isValorizando = false // Permito recibir cosnultas de la modal que se lanza en SolciitudesActivity
                 if (it.isSuccessful) {
 //                geoProvider.removeLocation(authProvider.getId())  DESCOMENTAR PARA UTILIZARLO DESPUES
+                    etValorConsulta.setText("")
+                    etHoraAtencion.setText("")
                     dismiss()
                 }
             }
+
+
         }
     }
 
@@ -110,13 +114,6 @@ class ModalBottomSolicitudForMedico : BottomSheetDialogFragment() {
         solicitudProvider.updateStatus(idPaciente, "cancelado", Date().time).addOnCompleteListener {
             dismiss()
         }
-    }
-
-    private fun limpiar() {
-        tvPaciente.text = ""
-        tvConsulta.text = ""
-        etValorConsulta.setText(null)
-        etHoraAtencion.setText(null)
     }
 
     //se ejecuta cunaod el usuario oculta el modal

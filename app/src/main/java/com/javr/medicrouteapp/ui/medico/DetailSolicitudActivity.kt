@@ -37,13 +37,18 @@ class DetailSolicitudActivity : AppCompatActivity() {
         binding = ActivityDetailSolicitudBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        MyToolbar().showToolbar(this, "Detalle de Atención", true)
+        MyToolbar().showToolbar(this, "Detalle de Atención", false)
 
         extraObjSolicitud = intent.getParcelableExtra<Solicitud>(EXTRA_SOLICITUD)!!
         Log.d("DETALLE PACIENTE: ", extraObjSolicitud.toString())
 
+        initComponet()
         initListener()
 
+    }
+
+    private fun initComponet() {
+        binding.tvMotivoConsulta.text = extraObjSolicitud.consulta
     }
 
     private fun initListener() {
@@ -131,27 +136,6 @@ class DetailSolicitudActivity : AppCompatActivity() {
     private fun iniWatchers() {
         Global.setErrorInTextInputLayout(binding.etDiagnostico, binding.tilDiagnostico)
         Global.setErrorInTextInputLayout(binding.etReceta, binding.tilReceta)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_medico, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.option_one) {
-            val intent = Intent(this, PerfilMedicoActivity::class.java)
-            startActivity(intent)
-        }
-
-        if (item.itemId == R.id.option_two) {
-            goToHistorialAtenciones()
-        }
-
-        if (item.itemId == R.id.option_three) {
-            goToMain()
-        }
-
-        return super.onOptionsItemSelected(item)
     }
 
     override fun onBackPressed() {

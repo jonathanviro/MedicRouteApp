@@ -194,6 +194,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
+                android:id="@+id/tvTituloPermisoFuncionamiento"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="10dp"
@@ -238,6 +239,7 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:visibility="gone"
                     android:id="@+id/llDownloadPdf"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"

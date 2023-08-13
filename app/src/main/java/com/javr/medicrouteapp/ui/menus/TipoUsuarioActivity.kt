@@ -21,7 +21,7 @@ class TipoUsuarioActivity : AppCompatActivity() {
     }
 
     private fun initComponents() {
-        Toolbar().showToolbar(this, "Tipo de Usuario", true)
+        Toolbar().showToolbar(this, "Tipo de Usuario", false)
     }
 
     private fun initListener() {
@@ -32,7 +32,8 @@ class TipoUsuarioActivity : AppCompatActivity() {
         }
 
         binding.cvMedico.setOnClickListener {
-            startActivity(Intent(this, SignupConsultorioActivity::class.java))
+            val intent = Intent(this, SignupConsultorioActivity::class.java)
+            startActivity(intent)
         }
 
 

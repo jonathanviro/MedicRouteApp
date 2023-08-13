@@ -31,6 +31,7 @@ import com.javr.medicrouteapp.core.Global
 import com.javr.medicrouteapp.data.network.firebase.AuthProvider
 import com.javr.medicrouteapp.data.network.firebase.GeoProvider
 import com.javr.medicrouteapp.data.network.firebase.SolicitudProvider
+import com.javr.medicrouteapp.data.network.model.Historial
 import com.javr.medicrouteapp.data.network.model.MedicoLocation
 import com.javr.medicrouteapp.data.network.model.Paciente
 import com.javr.medicrouteapp.data.network.model.Solicitud
@@ -99,6 +100,8 @@ class MapPacienteActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
             }
         }
     }
+
+
 
 
     private fun initMap() {

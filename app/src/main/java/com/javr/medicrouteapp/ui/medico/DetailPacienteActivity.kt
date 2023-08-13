@@ -40,7 +40,7 @@ class DetailPacienteActivity : AppCompatActivity() {
         binding = ActivityDetailPacienteBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        Toolbar().showToolbar(this, "Detalle de Paciente", true)
+        Toolbar().showToolbar(this, "Detalle de Paciente", false)
 
         extraObjSolicitud = intent.getParcelableExtra<Solicitud>(EXTRA_SOLICITUD)!!
 
@@ -111,9 +111,11 @@ class DetailPacienteActivity : AppCompatActivity() {
 
     fun onSelectedItem(historial: Historial) {
         val intent = Intent(this, DetailDiagnosticoActivity::class.java)
-        intent.putExtra(DetailDiagnosticoActivity.EXTRA_TIPO_USUARIO, "PACIENTE")
+        intent.putExtra(DetailDiagnosticoActivity.EXTRA_PANTALLA_PADRE, "MEDICO/DETAIL_PACIENTE_ACTIVITY")
         intent.putExtra(DetailDiagnosticoActivity.EXTRA_HISTORIAL, historial)
+        intent.putExtra(DetailDiagnosticoActivity.EXTRA_SOLICITUD, extraObjSolicitud)
         startActivity(intent)
+        finish()
     }
 
     private fun showButtonDiagnosticar() {

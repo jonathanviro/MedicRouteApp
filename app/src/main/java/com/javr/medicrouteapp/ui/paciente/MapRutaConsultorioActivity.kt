@@ -104,7 +104,7 @@ class MapRutaConsultorioActivity : AppCompatActivity(), OnMapReadyCallback, List
 //                    Toast.makeText(this, "Solicitud Iniciada", Toast.LENGTH_LONG).show()
                     binding.btnCancelarConsulta.visibility = View.GONE
                 } else if(solicitud?.status == "finalizado"){
-                    Log.d("FIRESTORE", "MapRutaConsultorioActivity/ Solicitud Aceptada")
+                    Log.d("FIRESTORE", "MapRutaConsultorioActivity/ Solicitud Finalizado")
 //                    Toast.makeText(this, "Solicitud Aceptada", Toast.LENGTH_LONG).show()
                     binding.btnVerDiagnostico.visibility = View.VISIBLE
                     goToDiagnostico()
@@ -123,8 +123,7 @@ class MapRutaConsultorioActivity : AppCompatActivity(), OnMapReadyCallback, List
 
     private fun goToDiagnostico() {
         val intent = Intent(this, DetailDiagnosticoActivity::class.java)
-        intent.putExtra(DetailDiagnosticoActivity.EXTRA_HISTORIAL, "PACIENTE")
-        intent.putExtra(DetailDiagnosticoActivity.EXTRA_HISTORIAL, Historial())     //Se envia Historial Nulo para que s epueda calificar. Solo se envia lleno cuando e sun item del Activity HistorialPaciente
+        intent.putExtra(DetailDiagnosticoActivity.EXTRA_PANTALLA_PADRE, "PACIENTE/MAP_RUTA_ACTIVITY")
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
     }

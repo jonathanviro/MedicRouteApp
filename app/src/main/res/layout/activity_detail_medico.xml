@@ -478,12 +478,14 @@
             android:text="HABILITAR" />
 
         <Button
-            android:id="@+id/btnCancelarMedico"
+            android:visibility="gone"
+            android:id="@+id/btnRechazarMedico"
             android:layout_width="0dp"
             android:layout_height="60dp"
             android:layout_marginHorizontal="4dp"
             android:layout_weight="1"
-            android:text="CANCELAR" />
+            android:backgroundTint="@color/md_theme_light_error"
+            android:text="RECHAZAR" />
 
     </LinearLayout>
 
