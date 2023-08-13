@@ -1,50 +1,63 @@
 package com.javr.medicrouteapp.ui
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.gms.maps.model.LatLng
+import androidx.core.splashscreen.SplashScreen
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.javr.medicrouteapp.R
 import com.javr.medicrouteapp.core.Global
 import com.javr.medicrouteapp.core.Validator
+import com.javr.medicrouteapp.data.network.firebase.AdministradorProvider
 import com.javr.medicrouteapp.data.network.firebase.AuthProvider
 import com.javr.medicrouteapp.data.network.firebase.MedicoProvider
 import com.javr.medicrouteapp.data.network.firebase.PacienteProvider
 import com.javr.medicrouteapp.data.network.firebase.SolicitudProvider
+import com.javr.medicrouteapp.data.network.model.Administrador
 import com.javr.medicrouteapp.data.network.model.Medico
 import com.javr.medicrouteapp.data.network.model.Paciente
 import com.javr.medicrouteapp.data.network.model.Solicitud
 import com.javr.medicrouteapp.data.sharedpreferences.MedicoManager
 import com.javr.medicrouteapp.data.sharedpreferences.PacienteManager
 import com.javr.medicrouteapp.databinding.ActivityLoginBinding
+import com.javr.medicrouteapp.ui.medico.EsperaMedicoActivity
 import com.javr.medicrouteapp.ui.medico.SolicitudesActivity
+import com.javr.medicrouteapp.ui.menus.OpcionesAdministradorActivity
 import com.javr.medicrouteapp.ui.menus.TipoUsuarioActivity
 import com.javr.medicrouteapp.ui.paciente.MapPacienteActivity
 import com.javr.medicrouteapp.ui.paciente.MapRutaConsultorioActivity
 
-//import com.javr.medicrouteapp.ui.map.MapPacienteActivity
-//import com.javr.medicrouteapp.ui.map.MapPacienteActivity
-//import com.javr.medicrouteapp.ui.menus.TipoUsuarioActivity
-
 class LoginActivity : AppCompatActivity() {
+    private lateinit var screenSplash: SplashScreen
     private lateinit var binding: ActivityLoginBinding
-    val authProvider = AuthProvider()
-    val pacienteProvider = PacienteProvider()
-    val medicoProvider = MedicoProvider()
-    val solicitudProvider = SolicitudProvider()
+    private val startTime = System.currentTimeMillis()
+    private val authProvider = AuthProvider()
+    private val administradorProvider = AdministradorProvider()
+    private val pacienteProvider = PacienteProvider()
+    private val medicoProvider = MedicoProvider()
+    private val solicitudProvider = SolicitudProvider()
+    private lateinit var dialogoCarga: AlertDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        screenSplash = installSplashScreen()
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        screenSplash.setKeepOnScreenCondition{
+            true
+        }
 
         initComponents()
         initListener()
     }
 
     private fun initComponents() {
+        dialogoCarga = Global.dialogoCarga(this, "Accediendo")
+
         //Watcher Errores
         Global.setErrorInTextInputLayout(binding.etCorreo, binding.tilCorreo)
         Global.setErrorInTextInputLayout(binding.etPassword, binding.tilPassword)
@@ -62,11 +75,12 @@ class LoginActivity : AppCompatActivity() {
 
     private fun login() {
         if (validarFormulario()) {
-            authProvider.login(binding.etCorreo.text.toString(), binding.etPassword.text.toString())
-                .addOnCompleteListener {
+            dialogoCarga.show()
+            authProvider.login(binding.etCorreo.text.toString(), binding.etPassword.text.toString()).addOnCompleteListener {
                     if (it.isSuccessful) {
                         searchUsuario()
                     } else {
+                        dialogoCarga.dismiss()
                         Toast.makeText(this, "Error en inicio de sesión", Toast.LENGTH_SHORT).show()
                         Log.d("FIREBASE", "ERROR ${it.exception.toString()}")
                     }
@@ -90,7 +104,7 @@ class LoginActivity : AppCompatActivity() {
                                 var solicitud = query.documents[0].toObject(Solicitud::class.java)
                                 Log.d("LOGIN SOLICITUD", "getSolicitud ${solicitud}")
 
-                                if(solicitud?.status == "aceptado"){
+                                if(solicitud?.status == "aceptado" || solicitud?.status == "valorado"|| solicitud?.status == "iniciado" || solicitud?.status == "finalizado"){
                                     goToMapRutaConsultorio()
                                 }
                             }
@@ -106,11 +120,33 @@ class LoginActivity : AppCompatActivity() {
                     if(document != null && document.exists()){
                         val medico = document.toObject(Medico::class.java)
                         if(medico != null){
-                            MedicoManager.guardarMedico(this@LoginActivity, medico)
-                            Log.d("FIRESTORE", "DATOS MEDICO: ${medico}")
-                            goToVistaMedico()
+                            if(medico.status == "activo"){
+                                dialogoCarga.dismiss()
+                                MedicoManager.guardarMedico(this@LoginActivity, medico)
+                                Log.d("FIRESTORE", "DATOS MEDICO: ${medico}")
+                                goToVistaMedico()
+                            }else{
+                                dialogoCarga.dismiss()
+                                goToVistaEsperaMedico()
+                            }
+
                         }else{
+                            dialogoCarga.dismiss()
                             Toast.makeText(this@LoginActivity, "No se encontraron datos del usuario", Toast.LENGTH_SHORT).show()
+                        }
+                    }else{
+                        administradorProvider.getAdministrador().get().addOnSuccessListener { document ->
+                            if(document != null && document.exists()){
+                                val administrador = document.toObject(Administrador::class.java)
+                                if(administrador != null){
+                                    dialogoCarga.dismiss()
+                                    Log.d("FIRESTORE", "DATOS ADMINISTRADOR: ${administrador}")
+                                    goToVistaAdministrador()
+                                }else{
+                                    dialogoCarga.dismiss()
+                                    Toast.makeText(this@LoginActivity, "No se encontraron datos del usuario", Toast.LENGTH_SHORT).show()
+                                }
+                            }
                         }
                     }
                 }
@@ -121,28 +157,39 @@ class LoginActivity : AppCompatActivity() {
     private fun goToSignup() {
         val intent = Intent(this, TipoUsuarioActivity::class.java)
         startActivity(intent)
+        finish()
     }
 
     private fun goToVistaPaciente() {
-        Toast.makeText(this@LoginActivity, "IR A VISTA PACIENTE", Toast.LENGTH_SHORT).show()
         val intent = Intent(this, MapPacienteActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK//Convertir activity en la activity principal. Eliminando el historial de pantallas
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(intent)
     }
 
     private fun goToVistaMedico() {
-        Toast.makeText(this@LoginActivity, "IR A VISTA MEDICO", Toast.LENGTH_SHORT).show()
         val intent = Intent(this, SolicitudesActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK//Convertir activity en la activity principal. Eliminando el historial de pantallas
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
+    }
+
+    private fun goToVistaEsperaMedico() {
+        val intent = Intent(this, EsperaMedicoActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
+    }
+
+    private fun goToVistaAdministrador() {
+        val intent = Intent(this, OpcionesAdministradorActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(intent)
     }
 
     private fun goToMapRutaConsultorio(){
         val intent = Intent(this, MapRutaConsultorioActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(intent)
+        finish()
     }
-
-
 
     private fun validarFormulario(): Boolean {
         if (binding.etCorreo.text.toString().isNullOrEmpty()) {
@@ -185,6 +232,11 @@ class LoginActivity : AppCompatActivity() {
 
         if (authProvider.existSession()){
             searchUsuario()
+        }else{
+            screenSplash.setKeepOnScreenCondition{
+                val currentTime = System.currentTimeMillis()
+                currentTime - startTime < 1500
+            }
         }
     }
 }

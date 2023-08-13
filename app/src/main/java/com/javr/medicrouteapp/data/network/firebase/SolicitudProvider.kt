@@ -18,8 +18,19 @@ class SolicitudProvider {
         }
     }
 
-    fun updateStatus(idPaciente: String, status: String): Task<Void> {
-        return db.document(idPaciente).update("status", status).addOnFailureListener {
+//    fun updateStatus(idPaciente: String, status: String): Task<Void> {
+//        return db.document(idPaciente).update("status", status).addOnFailureListener {
+//            Log.d("FIRESTORE", "SolicitudProvider/ERROR ${it.message}")
+//        }
+//    }
+
+    fun updateStatus(idPaciente: String, status: String, timestamp: Long): Task<Void> {
+        val dataToUpdate = hashMapOf<String, Any>(
+            "status" to status,
+            "timestampActualizacion" to timestamp,
+        )
+
+        return db.document(idPaciente).update(dataToUpdate).addOnFailureListener {
             Log.d("FIRESTORE", "SolicitudProvider/ERROR ${it.message}")
         }
     }
@@ -44,34 +55,35 @@ class SolicitudProvider {
         return db.document(authProvider.getId())
     }
 
-    fun enviarPrecioConsulta(
-        idPaciente: String,
-        status: String,
-        nombreMedico: String,
-        nombreConsultorio: String,
-        precio: Double,
-        horaAgendada: String,
-        consultorioLat: Double,
-        consultorioLng: Double
-    ): Task<Void> {
+    fun enviarPrecioConsulta(solicitud: Solicitud): Task<Void> {
         val dataToUpdate = hashMapOf<String, Any>(
-            "status" to status,
-            "nombreMedico" to nombreMedico,
-            "nombreConsultorio" to nombreConsultorio,
-            "precio" to precio,
-            "horaAgendada" to horaAgendada,
-            "consultorioLat" to consultorioLat,
-            "consultorioLng" to consultorioLng
+            "idPaciente" to solicitud.idPaciente!!,
+            "status" to solicitud.status!!,
+            "nombreMedico" to solicitud.nombreMedico!!,
+            "nombreConsultorio" to solicitud.nombreConsultorio!!,
+            "precio" to solicitud.precio!!,
+            "horaAgendada" to solicitud.horaAgendada!!,
+            "consultorioLat" to solicitud.consultorioLat!!,
+            "consultorioLng" to solicitud.consultorioLng!!,
+            "timestampActualizacion" to solicitud.timestampActualizacion!!
         )
 
-        return db.document(idPaciente).update(dataToUpdate).addOnFailureListener {
+        return db.document(solicitud.idPaciente).update(dataToUpdate).addOnFailureListener {
             Log.d("FIRESTORE", "SolicitudProvider/ERROR ${it.message}")
         }
     }
 
-    // Método para obtener las solicitudes por idMedico y status
+    // Método para obtener las solicitudes por idMedico y status - // CONSULTA COMPUESTA - INDICE
     fun getSolicitudesByMedicoYStatus(idMedico: String, status: String): Query {
         return db.whereEqualTo("idMedico", idMedico)
                  .whereEqualTo("status", status)
     }
+
+    // Obtener solicitudes aceptadas e iniciadas - // CONSULTA COMPUESTA - INDICE
+    fun getSolicitudesByMedicoYStatus(idMedico: String, lstEstados: List<String>): Query {
+        return db.whereEqualTo("idMedico", idMedico)
+                 .whereIn("status", lstEstados)
+                 .orderBy("status")
+    }
+
 }

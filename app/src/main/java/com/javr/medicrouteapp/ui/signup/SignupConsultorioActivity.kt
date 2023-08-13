@@ -24,6 +24,8 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.javr.medicrouteapp.R
+import com.javr.medicrouteapp.core.Global
+import com.javr.medicrouteapp.core.Validator
 import com.javr.medicrouteapp.databinding.ActivitySignupConsultorioBinding
 import com.javr.medicrouteapp.toolbar.Toolbar
 
@@ -32,9 +34,9 @@ class SignupConsultorioActivity : AppCompatActivity(), OnMapReadyCallback,
 
     private lateinit var binding: ActivitySignupConsultorioBinding
     private var googleMap: GoogleMap? = null
+    private var easyWayLocation: EasyWayLocation? = null
     private var consultorioLat: Double? = null
     private var consultorioLng: Double? = null
-    private var easyWayLocation: EasyWayLocation? = null
     private var ubicacionActual: LatLng? = null
     private var marker: Marker? = null
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,27 +44,27 @@ class SignupConsultorioActivity : AppCompatActivity(), OnMapReadyCallback,
         binding = ActivitySignupConsultorioBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        initComponents()
+        Toolbar().showToolbar(this, "Registro de Consultorio Médico", false)
+
+        initMap()
         initListener()
     }
 
-    private fun initComponents() {
-        Toolbar().showToolbar(this, "Registro de Consultorio Médico", true)
-
-        initMap()
-    }
-
     private fun initListener() {
+        iniWatchers()
+
         binding.btnNext.setOnClickListener {
-            val intent = Intent(this, SignupUsuarioActivity::class.java)
-            intent.putExtra(SignupUsuarioActivity.EXTRA_TIPO_USUARIO, "MEDICO")
-            intent.putExtra(SignupUsuarioActivity.EXTRA_RAZON_SOCIAL, binding.etRazonSocial.text.toString())
-            intent.putExtra(SignupUsuarioActivity.EXTRA_RUC, binding.etRuc.text.toString())
-            intent.putExtra(SignupUsuarioActivity.EXTRA_DIRECCION, binding.etUbicacion.text.toString())
-            intent.putExtra(SignupUsuarioActivity.EXTRA_REGISTRO_SANITARIO, binding.etRegistroSanitario.text.toString())
-            intent.putExtra(SignupUsuarioActivity.EXTRA_CONSULTORIO_LAT, consultorioLat)
-            intent.putExtra(SignupUsuarioActivity.EXTRA_CONSULTORIO_LNG, consultorioLng)
-            startActivity(intent)
+            if(validarFormulario()){
+                val intent = Intent(this, SignupUsuarioActivity::class.java)
+                intent.putExtra(SignupUsuarioActivity.EXTRA_TIPO_USUARIO, "MEDICO")
+                intent.putExtra(SignupUsuarioActivity.EXTRA_RAZON_SOCIAL, binding.etRazonSocial.text.toString())
+                intent.putExtra(SignupUsuarioActivity.EXTRA_RUC, binding.etRuc.text.toString())
+                intent.putExtra(SignupUsuarioActivity.EXTRA_DIRECCION, binding.etUbicacion.text.toString())
+                intent.putExtra(SignupUsuarioActivity.EXTRA_REGISTRO_SANITARIO, binding.etRegistroSanitario.text.toString())
+                intent.putExtra(SignupUsuarioActivity.EXTRA_CONSULTORIO_LAT, consultorioLat)
+                intent.putExtra(SignupUsuarioActivity.EXTRA_CONSULTORIO_LNG, consultorioLng)
+                startActivity(intent)
+            }
         }
     }
 
@@ -179,6 +181,47 @@ class SignupConsultorioActivity : AppCompatActivity(), OnMapReadyCallback,
             }
         }
 
+    private fun validarFormulario(): Boolean {
+        if (binding.etRazonSocial.text.toString().isNullOrEmpty()) {
+            Global.setErrorInTextInputLayout(
+                binding.tilRazonSocial,
+                this.getString(R.string.not_insert_razon_social)
+            )
+            return false
+        }
+
+        if (binding.etRuc.text.toString().isNullOrEmpty()) {
+            Global.setErrorInTextInputLayout(
+                binding.tilRuc,
+                this.getString(R.string.not_insert_ruc)
+            )
+            return false
+        } else {
+            if (!Validator.isValidRUC(binding.etRuc.text.toString())) {
+                Global.setErrorInTextInputLayout(
+                    binding.tilRuc,
+                    this.getString(R.string.invalid_ruc)
+                )
+                return false
+            }
+        }
+
+        if (binding.etRegistroSanitario.text.toString().isNullOrEmpty()) {
+            Global.setErrorInTextInputLayout(
+                binding.tilRegistroSanitario,
+                this.getString(R.string.not_insert_registro_sanitario)
+            )
+            return false
+        }
+
+        return true
+    }
+
+    private fun iniWatchers() {
+        Global.setErrorInTextInputLayout(binding.etRazonSocial, binding.tilRazonSocial)
+        Global.setErrorInTextInputLayout(binding.etRuc, binding.tilRuc)
+        Global.setErrorInTextInputLayout(binding.etRegistroSanitario, binding.tilRegistroSanitario)
+    }
     override fun onDestroy() {
         super.onDestroy()
         easyWayLocation?.endUpdates()

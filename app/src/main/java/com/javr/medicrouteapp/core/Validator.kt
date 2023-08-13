@@ -17,12 +17,27 @@ object Validator {
 
         val computedVerificationDigit = if (multipliedSum % 10 == 0) 0 else 10 - (multipliedSum % 10)
 
-        val cedulasAceptadas = listOf<String>("0943448985", "0943448982", "0943448983", "0943448984", "0951828452", "0951828453", "0951828454")
-        if(cedulasAceptadas.contains(cedula)){
-            return true
+        return verificationDigit == computedVerificationDigit
+    }
+
+    fun isValidRUC(ruc: String): Boolean {
+        // Verificar que el RUC tenga 13 dígitos
+        if (ruc.length != 13 || !ruc.all { it.isDigit() }) {
+            return false
         }
 
-        return verificationDigit == computedVerificationDigit
+        // Verificar el dígito de control
+        val coeficientes = intArrayOf(2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2)
+        var suma = 0
+        for (i in 0 until 10) {
+            val digito = Character.getNumericValue(ruc[i])
+            val producto = digito * coeficientes[i]
+            suma += if (producto >= 10) producto - 9 else producto
+        }
+        val digitoControlCalculado = (10 - (suma % 10)) % 10
+        val digitoControlReal = Character.getNumericValue(ruc[10])
+
+        return digitoControlCalculado == digitoControlReal
     }
 
     fun isValidEmail(email: String): Boolean {

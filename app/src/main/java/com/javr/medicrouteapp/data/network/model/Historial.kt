@@ -1,24 +1,28 @@
 package com.javr.medicrouteapp.data.network.model
 
+import android.os.Parcelable
 import com.beust.klaxon.Klaxon
-import java.sql.Timestamp
+import kotlinx.parcelize.Parcelize
 
 private val klaxon = Klaxon()
 
+@Parcelize
 data class Historial (
     var id: String? = null,
     val idPaciente: String? = null,
-    val idMedicoAsignado: String? = null,
-    val origin: String? = null,
-    val destination: String? = null,
-    val calificationToClient: Double? = null,
-    val calificationToMedico: Double? = null,
-    val originLat: Double? = null,
-    val originLng: Double? = null,
-    val destinationLat: Double? = null,
-    val destinationLng: Double? = null,
+    val idMedico: String? = null,
+    val calificacionParaPaciente: Float? = null,
+    val calificacionParaMedico: Float? = null,
+    val nombrePaciente: String? = null,
+    val nombreMedico: String? = null,
+    val nombreConsultorio: String? = null,
+    val consulta: String? = null,
+    val diagnostico: String? = null,
+    val receta: String? = null,
+    val horaAgendada: String? = null,
+    val precio: Double? = null,
     val timestamp: Long? = null
-) {
+) : Parcelable {
     public fun toJson() = klaxon.toJsonString(this)
 
     companion object {

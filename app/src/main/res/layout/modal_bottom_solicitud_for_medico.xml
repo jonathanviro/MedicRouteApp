@@ -5,11 +5,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:theme="@style/Base.Theme.Medicroute"
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="420dp"
+        android:layout_height="430dp"
         android:layout_gravity="bottom"
         android:orientation="vertical">
 
@@ -17,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="12dp"
-            android:text="SOLICITUD DE CONSULTA"
+            android:text="Solicitud de Consulta"
             android:textAlignment="center"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -33,13 +34,13 @@
                 android:layout_height="30dp"
                 android:layout_gravity="center"
                 android:layout_marginHorizontal="10dp"
-                android:src="@drawable/ic_person" />
+                android:src="@drawable/ic_user" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginRight="12dp">
+                android:layout_marginRight="12dp"
+                android:orientation="vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -54,7 +55,7 @@
                     android:layout_height="wrap_content"
                     android:maxLines="2"
                     android:text="Kevin Loor"
-                    android:textSize="15sp" />
+                    android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
 
@@ -69,13 +70,13 @@
                 android:layout_height="30dp"
                 android:layout_gravity="center"
                 android:layout_marginHorizontal="10dp"
-                android:src="@drawable/ic_medical_services" />
+                android:src="@drawable/ic_archive" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginRight="12dp">
+                android:layout_marginRight="12dp"
+                android:orientation="vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -90,7 +91,7 @@
                     android:layout_height="wrap_content"
                     android:maxLines="2"
                     android:text="Tos y resequedad de garganta"
-                    android:textSize="15sp" />
+                    android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
 
@@ -105,13 +106,13 @@
                 android:layout_height="30dp"
                 android:layout_gravity="center"
                 android:layout_marginHorizontal="10dp"
-                android:src="@drawable/ic_money" />
+                android:src="@drawable/ic_coin" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginRight="12dp">
+                android:layout_marginRight="12dp"
+                android:orientation="vertical">
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilValorConsulta"
@@ -141,13 +142,13 @@
                 android:layout_height="30dp"
                 android:layout_gravity="center"
                 android:layout_marginHorizontal="10dp"
-                android:src="@drawable/ic_timer" />
+                android:src="@drawable/ic_clock" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginRight="12dp">
+                android:layout_marginRight="12dp"
+                android:orientation="vertical">
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilHoraAtencion"
@@ -166,26 +167,21 @@
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
         </LinearLayout>
-
-
-
-
-
-
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
         android:layout_marginHorizontal="20dp"
-        android:gravity="bottom"
+        android:layout_marginVertical="8dp"
         android:orientation="horizontal">
 
         <Button
             android:id="@+id/btnEnviar"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_margin="8dp"
             android:layout_weight="1"
             android:text="ENVIAR" />
 
@@ -195,6 +191,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
             android:layout_weight="1"
+            android:backgroundTint="@color/md_theme_light_error"
             android:text="CANCELAR" />
     </LinearLayout>
 </FrameLayout>

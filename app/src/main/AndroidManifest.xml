@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -18,6 +19,42 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Medicroute"
         tools:targetApi="31">
+        <activity
+            android:name=".ui.administrador.VerPdfActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.medico.HistorialAtencionesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.paciente.HistorialPacienteActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.paciente.DetailDiagnosticoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.paciente.PerfilPacienteActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.medico.PerfilMedicoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.medico.EsperaMedicoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.menus.OpcionesAdministradorActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.administrador.DetailMedicoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.administrador.MedicosPendientesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.administrador.MedicosActivosActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.medico.DetailSolicitudActivity"
+            android:exported="false" />
         <activity
             android:name=".ui.paciente.MapRutaConsultorioActivity"
             android:exported="false" />
@@ -45,7 +82,8 @@
             android:parentActivityName=".ui.LoginActivity" />
         <activity
             android:name=".ui.LoginActivity"
-            android:exported="true">
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Starting">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

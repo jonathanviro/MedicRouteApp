@@ -16,13 +16,14 @@ data class Solicitud (
     val nombreConsultorio: String? = null,
     val consulta: String? = null,
     val horaAgendada: String? = null,
+    val diagnostico: String? = null,
+    val receta: String? = null,
     val precio: Double? = null,
     val pacienteLat: Double? = null,
     val pacienteLng: Double? = null,
     val consultorioLat: Double? = null,
-    val consultorioLng: Double? = null
-
-
+    val consultorioLng: Double? = null,
+    val timestampActualizacion: Long? = null,
 ) :Parcelable {
     public fun toJson() = klaxon.toJsonString(this)
 

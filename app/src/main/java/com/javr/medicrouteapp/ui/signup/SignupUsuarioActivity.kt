@@ -2,6 +2,7 @@ package com.javr.medicrouteapp.ui.signup
 
 import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.util.Log
@@ -20,7 +21,9 @@ import com.javr.medicrouteapp.data.network.model.Medico
 import com.javr.medicrouteapp.data.network.model.Paciente
 import com.javr.medicrouteapp.databinding.ActivitySignupUsuarioBinding
 import com.javr.medicrouteapp.toolbar.Toolbar
+import com.javr.medicrouteapp.ui.medico.EsperaMedicoActivity
 import com.javr.medicrouteapp.ui.medico.SolicitudesActivity
+import com.javr.medicrouteapp.ui.paciente.MapPacienteActivity
 
 class SignupUsuarioActivity : AppCompatActivity() {
     companion object {
@@ -44,7 +47,8 @@ class SignupUsuarioActivity : AppCompatActivity() {
     private var extraRegistroSanitario: String? = null
     private var extraConsultorioLat: Double? = null
     private var extraConsultorioLng: Double? = null
-
+    private var uriImagen: Uri? = null
+    private var uriPdf: Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -101,85 +105,142 @@ class SignupUsuarioActivity : AppCompatActivity() {
     }
 
     private fun registrerUsuario() {
-        if (validarFormulario()) {
-            authProvider.checkEmailExists(binding.etCorreo.text.toString()).addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        val signInMethods = task.result?.signInMethods
-                        if (signInMethods != null && signInMethods.isNotEmpty()) {
-                            Toast.makeText(this@SignupUsuarioActivity, "Correo ingresado ya se encuentra en uso", Toast.LENGTH_LONG).show()
-                        } else {
-                            authProvider.registrer(
-                                binding.etCorreo.text.toString(),
-                                binding.etPassword.text.toString()
-                            ).addOnCompleteListener {
-                                if (it.isSuccessful){
-                                    if (extraTipoUsuario.equals("PACIENTE")) {
-                                        val paciente = Paciente(
-                                            id = authProvider.getId(),
-                                            nombres = binding.etNombres.text.toString(),
-                                            apellidos = binding.etApellidos.text.toString(),
-                                            cedula = binding.etCedula.text.toString(),
-                                            email = binding.etCorreo.text.toString(),
-                                            telefono = binding.etTelefono.text.toString(),
-                                            sexo = binding.tvSexo.text.toString(),
-                                            )
+        if(uriImagen != null) {
+            if (validarFormulario()) {
+                var flagContinuar = false
+                if (extraTipoUsuario.equals("MEDICO")) {
+                    if(uriPdf != null) {
+                        flagContinuar = true
+                    }else{
+                        Toast.makeText(this@SignupUsuarioActivity, "PDF OBLIGATORIO", Toast.LENGTH_LONG).show()
+                    }
+                }else{
+                    flagContinuar = true
+                }
 
-                                        pacienteProvider.create(paciente).addOnCompleteListener {
-                                            if(it.isSuccessful){
-                                                Toast.makeText(this@SignupUsuarioActivity, "REGISTRO EXITOSO", Toast.LENGTH_LONG).show()
-                                                goToVistaPaciente()
-                                            }else{
-                                                Log.e("FIRESTORE", "ERROR: Error almacenando los datos del paciente. ${it.exception.toString()}")
+                if(flagContinuar){
+                    val dialogoCarga = Global.dialogoCarga(this, "Creando Usuario")
+                    dialogoCarga.show()
+
+                    authProvider.checkEmailExists(binding.etCorreo.text.toString()).addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            val signInMethods = task.result?.signInMethods
+                            if (signInMethods != null && signInMethods.isNotEmpty()) {
+                                dialogoCarga.dismiss()
+                                Global.setErrorInTextInputLayout( binding.tilCorreo, this.getString(R.string.exist_email))
+                            } else {
+                                authProvider.registrer(binding.etCorreo.text.toString(), binding.etPassword.text.toString()).addOnCompleteListener {
+                                    if (it.isSuccessful){
+                                        if (extraTipoUsuario.equals("PACIENTE")) {
+                                            pacienteProvider.uploadImagen(authProvider.getId(), uriImagen!!).addOnSuccessListener {taskSnapshot ->
+                                                pacienteProvider.getImagenUrl(authProvider.getId()).addOnSuccessListener {url ->
+                                                    val imageUrl = url.toString()
+                                                    Log.d("STORAGE", "URL: $url")
+
+                                                    val paciente = Paciente(
+                                                        id = authProvider.getId(),
+                                                        nombres = binding.etNombres.text.toString(),
+                                                        apellidos = binding.etApellidos.text.toString(),
+                                                        cedula = binding.etCedula.text.toString(),
+                                                        telefono = binding.etTelefono.text.toString(),
+                                                        sexo = binding.tvSexo.text.toString(),
+                                                        imagenUrl = imageUrl
+                                                    )
+
+                                                    pacienteProvider.create(paciente).addOnCompleteListener {
+                                                        if(it.isSuccessful){
+                                                            dialogoCarga.dismiss()
+                                                            Log.e("FIRESTORE", "REGISTRO EXITOSO")
+                                                            goToVistaPaciente()
+                                                        }else{
+                                                            dialogoCarga.dismiss()
+                                                            Log.e("FIRESTORE", "ERROR: Error almacenando los datos del paciente. ${it.exception.toString()}")
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }else{
+                                            medicoProvider.uploadImagen(authProvider.getId(), uriImagen!!).addOnSuccessListener {taskSnapshot ->
+                                                medicoProvider.getImagenUrl(authProvider.getId()).addOnSuccessListener {urlImage ->
+                                                    val imageUrl = urlImage.toString()
+                                                    Log.d("STORAGE", "URL IMAGE: $urlImage")
+
+                                                    medicoProvider.uploadPdf(authProvider.getId(), uriPdf!!).addOnSuccessListener {taskSnapshotPdf ->
+                                                        medicoProvider.getPdfUrl(authProvider.getId()).addOnSuccessListener { urlPdf ->
+                                                            val pfUrl = urlPdf.toString()
+                                                            Log.d("STORAGE", "URL PDF: $pfUrl")
+
+                                                            val medico = Medico(
+                                                                id = authProvider.getId(),
+                                                                nombres = binding.etNombres.text.toString(),
+                                                                apellidos = binding.etApellidos.text.toString(),
+                                                                cedula = binding.etCedula.text.toString(),
+                                                                telefono = binding.etTelefono.text.toString(),
+                                                                sexo = binding.tvSexo.text.toString(),
+                                                                razonSocial = extraRazonSocial,
+                                                                ruc = extraRuc,
+                                                                registroSanitario = extraRegistroSanitario,
+                                                                consultorioLat = extraConsultorioLat,
+                                                                consultorioLng = extraConsultorioLng,
+                                                                imagenUrl = imageUrl,
+                                                                pdfUrl = pfUrl,
+                                                                status = "pendiente")
+
+                                                            medicoProvider.create(medico).addOnCompleteListener {
+                                                                if(it.isSuccessful){
+                                                                    Log.e("FIRESTORE", "REGISTRO EXITOSO")
+                                                                    if(medico.status == "activo"){
+                                                                        dialogoCarga.dismiss()
+                                                                        goToVistaMedico()
+                                                                    }else{
+                                                                        dialogoCarga.dismiss()
+                                                                        goToVistaEsperaMedico()
+                                                                    }
+                                                                }else{
+                                                                    dialogoCarga.dismiss()
+                                                                    Log.e("FIRESTORE", "ERROR: Error almacenando los datos del medico. ${it.exception.toString()}")
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
                                             }
                                         }
                                     }else{
-                                        val medico = Medico(
-                                            id = authProvider.getId(),
-                                            nombres = binding.etNombres.text.toString(),
-                                            apellidos = binding.etApellidos.text.toString(),
-                                            cedula = binding.etCedula.text.toString(),
-                                            email = binding.etCorreo.text.toString(),
-                                            telefono = binding.etTelefono.text.toString(),
-                                            sexo = binding.tvSexo.text.toString(),
-                                            razonSocial = extraRazonSocial,
-                                            ruc = extraRuc,
-                                            registroSanitario = extraRegistroSanitario,
-                                            consultorioLat = extraConsultorioLat,
-                                            consultorioLng = extraConsultorioLng)
-
-                                        medicoProvider.create(medico).addOnCompleteListener {
-                                            if(it.isSuccessful){
-                                                Toast.makeText(this@SignupUsuarioActivity, "REGISTRO EXITOSO", Toast.LENGTH_LONG).show()
-                                                goToVistaMedico()
-                                            }else{
-                                                Log.e("FIRESTORE", "ERROR: Error almacenando los datos del medico. ${it.exception.toString()}")
-                                            }
-                                        }
+                                        dialogoCarga.dismiss()
+                                        Log.e("FIRESTORE", "Registro fallido ${it.exception.toString()}")
                                     }
-
-                                }else{
-                                    Log.e("FIRESTORE", "Registro fallido ${it.exception.toString()}")
                                 }
                             }
+                        } else {
+                            dialogoCarga.dismiss()
+                            val exception = task.exception
+                            Log.e("FIRESTORE", "Error al verificar el correo electrónico: $exception")
                         }
-                    } else {
-                        val exception = task.exception
-                        Log.e("FIRESTORE", "Error al verificar el correo electrónico: $exception")
                     }
                 }
+            }
+        }else{
+            Toast.makeText(this@SignupUsuarioActivity, "FOTO DE PERFIL OBLIGATORIA", Toast.LENGTH_LONG).show()
         }
     }
 
     private fun goToVistaPaciente() {
-        Toast.makeText(this@SignupUsuarioActivity, "IR A VISTA PACIENTE", Toast.LENGTH_SHORT).show()
-//        val intent = Intent(this, MapPacienteActivity::class.java)
-//        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK//Convertir activity en la activity principal. Eliminando el historial de pantallas
+        val intent = Intent(this, MapPacienteActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
     }
 
     private fun goToVistaMedico() {
-        Toast.makeText(this@SignupUsuarioActivity, "IR A VISTA MEDICO", Toast.LENGTH_SHORT).show()
         val intent = Intent(this, SolicitudesActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK//Convertir activity en la activity principal. Eliminando el historial de pantallas
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
+    }
+
+    private fun goToVistaEsperaMedico() {
+        val intent = Intent(this, EsperaMedicoActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
     }
 
     private fun validarFormulario(): Boolean {
@@ -280,20 +341,20 @@ class SignupUsuarioActivity : AppCompatActivity() {
             type = "application/pdf"
         }
 
-        openPdfFile.launch(intent)
+        pickPdfFile.launch(intent)
     }
 
     private val pickMedia =
         registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
             if (uri != null) {
                 binding.ivFotoPerfil.setImageURI(uri)
-//                Toast.makeText(this, uri.toString(), Toast.LENGTH_SHORT).show()
+                uriImagen = uri
             } else {
                 Toast.makeText(this, "NO HA SELECCIONADO FOTO", Toast.LENGTH_SHORT).show()
             }
         }
 
-    private val openPdfFile =
+    private val pickPdfFile =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val uri = result.data?.data
@@ -306,6 +367,7 @@ class SignupUsuarioActivity : AppCompatActivity() {
                                 if (nameIndex >= 0) it.getString(nameIndex) else uri.lastPathSegment
 
                             binding.tvNombrePdf.text = fileName
+                            uriPdf = uri
                         }
                         it.close()
                     }

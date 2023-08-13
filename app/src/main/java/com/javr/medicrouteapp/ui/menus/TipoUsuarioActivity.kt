@@ -3,7 +3,6 @@ package com.javr.medicrouteapp.ui.menus
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.javr.medicrouteapp.R
 import com.javr.medicrouteapp.databinding.ActivityTipoUsuarioBinding
 import com.javr.medicrouteapp.toolbar.Toolbar
 import com.javr.medicrouteapp.ui.signup.SignupConsultorioActivity
